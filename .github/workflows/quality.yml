@@ -42,3 +42,4 @@ jobs:
             .artifacts/packaging/*.log
             .artifacts/packaging/*.whl
             .artifacts/packaging/*.tar.gz
+            .artifacts/packaging/pylock.core.toml

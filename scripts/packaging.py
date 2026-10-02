@@ -76,7 +76,7 @@ def main() -> int:
             root = Path(temporary)
             wheelhouse = root / "wheelhouse"
             wheelhouse.mkdir()
-            requirements_file = root / "core-requirements.txt"
+            requirements_file = root / "pylock.core.toml"
             run(
                 [
                     *uv_command,
@@ -86,6 +86,9 @@ def main() -> int:
                     "reliclab-core",
                     "--no-dev",
                     "--no-emit-workspace",
+                    "--format",
+                    "pylock.toml",
+                    "--quiet",
                     "--output-file",
                     str(requirements_file),
                 ],
@@ -131,7 +134,7 @@ def main() -> int:
                 venv = root / label
                 run([*uv_command, "venv", "--python", sys.executable, str(venv)], root)
                 executable = venv / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
-                # Locked dependencies must already be in the cache from development sync.
+                # Artifact URLs avoid requiring index metadata in a fresh locked-sync cache.
                 run(
                     [
                         *uv_command,
@@ -194,6 +197,7 @@ def main() -> int:
                                 raise RuntimeError("Missing optional dependency guidance")
             for artifact in wheelhouse.iterdir():
                 shutil.copy2(artifact, output / artifact.name)
+            shutil.copy2(requirements_file, output / requirements_file.name)
         success = True
     except (OSError, RuntimeError) as error:
         print(f"Packaging check failed: {error}", file=sys.stderr)

@@ -88,8 +88,12 @@ storage lifecycles or add execution behavior to Core.
 Check outputs are under `.artifacts/`: per-mode check records, coverage JSON,
 and the packaging report/logs. The packaging check builds each sdist, builds the
 wheel from that sdist, and installs five combinations into new virtual
-environments. Third-party Core dependencies are exported from `uv.lock` and
-installed offline with hashes from the cache populated by the explicit sync.
+environments. Third-party Core dependencies are exported from `uv.lock` to
+`pylock.core.toml`, preserving artifact URLs and hashes, and installed offline
+from the cache populated by the explicit sync. This does not require cached
+registry index metadata, which a fresh locked sync does not necessarily fetch.
+The pinned uv version supports this export; its experimental-feature warning is
+retained in build logs. Review this behavior when upgrading uv.
 Workspace wheels are then installed with `--no-index --find-links`. Missing cache
 entries fail the check; checks never download packages. Imports must resolve
 inside the fresh environment, and optional modules must be absent when not

@@ -17,13 +17,19 @@ A recorded handoff does not imply that all acceptance checks have passed.
   required in addition to structural JSON Schema validation.
 - Add independent Core coverage gates and locked, hash-verified offline dependency
   installs; validate the schema API in all five wheel-installation combinations.
+- Fix clean-runner offline packaging by exporting artifact URLs and hashes through
+  `pylock.core.toml`; a requirements-only export incorrectly depended on cached
+  registry index metadata. The first remote run passed all quality gates but
+  exposed this packaging failure. Follow-up matrix results are recorded by the
+  Quality workflow, separately from Git delivery.
 - Compatibility: introduces format `1.0` and Pydantic v2, semver, and jsonschema
   runtime dependencies. No existing persisted-data migration is required. Package
   version remains the unpublished `0.1.0a1` development version.
 - Verification: Windows/Python 3.11.15 and 3.12.14 pass 272 tests, strict mypy,
   ruff, and format checks. Core statement and branch coverage are both 100%.
   Independent sdist/wheel builds and five installation combinations pass on
-  both Python versions. Remote Windows/Linux matrix acceptance is pending.
+  both Python versions. Remote Windows/Linux results are tracked by the Quality
+  workflow; a successful push alone does not imply acceptance.
 - Limitations: no production Markdown codec, Vault, version resolver, renderer,
   agent runtime, or connected Web UI. Structural schema validation alone is not
   sufficient; consult `SPEC.md` for required semantic validation.
@@ -35,7 +41,7 @@ A recorded handoff does not imply that all acceptance checks have passed.
   architecture boundary tests, offline checks, packaging checks, and CI.
 - Verification before S01: 52 tests and five isolated installation combinations
   passed on Windows/Python 3.11.15 and 3.12.14. The expanded S01 suite now also
-  covers this foundation. Remote matrix acceptance remains pending.
+  covers this foundation. Remote matrix acceptance is tracked separately by CI.
 - Compatibility: new pre-release package layout; no database or asset migration.
   Runtime and Server packages still expose foundations, not executable features.
 
