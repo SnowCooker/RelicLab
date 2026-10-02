@@ -2,7 +2,7 @@
 
 from typing import Literal
 
-from pydantic import TypeAdapter, ValidationError
+from pydantic import Field, TypeAdapter, ValidationError
 
 from .models import ModuleDocument, StrictModel
 
@@ -25,6 +25,9 @@ class Diagnostic(StrictModel):
     message: str
     source: str | None = None
     location: tuple[str | int, ...] = ()
+    line: int | None = Field(default=None, ge=1)
+    column: int | None = Field(default=None, ge=1)
+    exact: bool = False
 
 
 class RelicError(Exception):
@@ -50,10 +53,14 @@ class RelicError(Exception):
 DOCUMENT_ADAPTER: TypeAdapter[ModuleDocument] = TypeAdapter(ModuleDocument)
 
 
-def validate_module(data: object, *, source: str | None = None) -> ModuleDocument:
+def validate_module(
+    data: object, *, source: str | None = None, max_body_bytes: int = 1024 * 1024
+) -> ModuleDocument:
     """Validate a decoded document; raw frontmatter decoding belongs to the codec."""
+    if type(max_body_bytes) is not int or max_body_bytes < 1:
+        raise ValueError("max_body_bytes must be a positive integer")
     try:
-        return DOCUMENT_ADAPTER.validate_python(data)
+        return DOCUMENT_ADAPTER.validate_python(data, context={"max_body_bytes": max_body_bytes})
     except ValidationError as error:
         diagnostics = []
         for item in error.errors(include_url=False, include_context=False, include_input=False):

@@ -59,15 +59,16 @@ def test_metadata_matches_dependency_direction() -> None:
     for package in CONFIG["packages"]:
         with (ROOT / package["path"] / "pyproject.toml").open("rb") as source:
             project = tomllib.load(source)["project"]
-        allowed = {modules[name] for name in package["allowed_internal"]} | set(
-            package["allowed_external"]
-        )
+        aliases = package.get("distribution_aliases", {})
+        allowed = {modules[name] for name in package["allowed_internal"]} | {
+            aliases.get(name, name) for name in package["allowed_external"]
+        }
         dependencies = list(project["dependencies"])
         for extra in project.get("optional-dependencies", {}).values():
             dependencies.extend(extra)
         for dependency in dependencies:
             name = re.split(r"[\[<>=!;~ ]", dependency)[0]
-            assert name in allowed
+            assert name.lower() in allowed
 
 
 @pytest.mark.parametrize("module", [package["module"] for package in CONFIG["packages"]])

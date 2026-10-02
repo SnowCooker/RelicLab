@@ -3,7 +3,7 @@
 import re
 from typing import Annotated, Any
 
-from pydantic import AfterValidator, Field
+from pydantic import AfterValidator, Field, ValidationInfo
 from semver import Version
 
 END = r"$(?![\s\S])"
@@ -46,9 +46,10 @@ def nonblank(value: str) -> str:
     return value
 
 
-def body_size(value: str) -> str:
-    if len(value.encode("utf-8")) > 1024 * 1024:
-        raise ValueError("Reduce the body to at most 1 MiB of UTF-8 text")
+def body_size(value: str, info: ValidationInfo) -> str:
+    limit = info.context["max_body_bytes"] if info.context else 1024 * 1024
+    if len(value.encode("utf-8")) > limit:
+        raise ValueError("Body exceeds the host's UTF-8 byte limit")
     return value
 
 

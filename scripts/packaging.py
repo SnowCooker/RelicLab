@@ -118,8 +118,8 @@ def main() -> int:
                     metadata = BytesParser().parsebytes(archive.read(metadata_path))
                     requirements = metadata.get_all("Requires-Dist", [])
                     if metadata["Name"] == "reliclab-core":
-                        allowed = {"pydantic", "semver", "jsonschema"}
-                        actual = {re.split(r"[<>=!;~ ]", item)[0] for item in requirements}
+                        allowed = {"pydantic", "semver", "jsonschema", "pyyaml"}
+                        actual = {re.split(r"[<>=!;~ ]", item)[0].lower() for item in requirements}
                         if actual != allowed:
                             raise RuntimeError("Core wheel dependencies violate the allowlist")
                     wheels.append(
@@ -179,6 +179,8 @@ def main() -> int:
                     "asset = validate_module(dict(schema_version='1.0', kind='persona', "
                     "id='wheel-probe', version='1.0.0', name='Wheel probe', identity='Editor')); "
                     "Draft202012Validator(json_schema()).validate(asset.model_dump(mode='json')); "
+                    "from reliclab.codec import parse_module, serialize_module; "
+                    "assert parse_module(serialize_module(asset)) == asset; "
                     "print({module.__name__: module.__version__ for module in loaded})"
                 )
                 run([str(executable), "-I", "-c", probe], root)

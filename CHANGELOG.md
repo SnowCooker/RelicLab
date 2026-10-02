@@ -6,6 +6,34 @@ A recorded handoff does not imply that all acceptance checks have passed.
 
 ## Unreleased
 
+### S02 - Safe Markdown Codec (2026-10-02)
+
+- Add pure `parse_module`, `parse_with_source`, and `serialize_module` APIs with
+  UTF-8/BOM handling, preserved input bodies, read-only source maps, and canonical
+  JSON-compatible YAML frontmatter with normalized output newlines.
+- Reject unsafe YAML tags, anchors, aliases, duplicate/merge keys, directives,
+  multiple documents, invalid encodings, and excessive bytes, nesting, or nodes
+  without calling YAML object constructors or executing file/process operations.
+- Add host-controlled codec limits and optional diagnostic line/column/exactness
+  metadata. Missing fields use an explicitly approximate frontmatter position.
+- Add four golden fixture pairs, example/invalid-fixture codec contracts,
+  deterministic Hypothesis tests, security regressions, and independent codec
+  statement/branch gates of 95%. Exercise the codec in every isolated install.
+- Compatibility: PyYAML is now a Core runtime dependency; Hypothesis remains
+  development-only. Existing schema APIs retain their default 1 MiB body limit
+  and gain a host-only override. Format version remains `1.0`; no files are
+  automatically rewritten and no persisted-data migration is required.
+- Verification: Windows/Python 3.11.15 and 3.12.14 pass 420 tests, strict mypy,
+  ruff, formatting, schema-drift checks, and four sdist-to-wheel builds with five
+  isolated installation combinations per interpreter. Core and codec statement
+  and branch coverage are 100%. Remote matrix acceptance is tracked separately
+  by the Quality workflow; pushing is not acceptance.
+- Limitations: canonical serialization does not preserve YAML comments/layout;
+  expanded output or a final body newline may require larger host limits. The
+  codec performs no file reads/writes, conflict handling, Vault operations,
+  reference resolution, agent execution, or UI work. See `SPEC.md` for the
+  restricted scalar subset and exact roundtrip rules.
+
 ### S01 - Strict Asset Schemas (2026-10-02)
 
 - Add strict Persona, Skill, Memory, and Composition models, typed references,

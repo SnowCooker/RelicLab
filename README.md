@@ -16,8 +16,10 @@ The engineering foundation is now implemented: independently buildable Core,
 Runtime, CLI, and Server packages, locked development dependencies, quality checks,
 and isolated wheel-installation tests. S01 adds strict asset models, validation,
 JSON Schema export, and public examples through the `reliclab.schema` Python API.
-See [SPEC.md](./SPEC.md) for the format and semantic validation requirements.
-Only `relic --version` and `relic doctor` are available in the CLI; file codecs,
+S02 adds safe Markdown parsing, source coordinates, configurable limits, and
+deterministic serialization through `reliclab.codec`.
+See [SPEC.md](./SPEC.md) for the format, codec API, and semantic validation requirements.
+Only `relic --version` and `relic doctor` are available in the CLI;
 asset management, agent execution, and the Web UI are not implemented.
 See [CONTRIBUTING.md](./CONTRIBUTING.md) for setup and verification commands.
 
@@ -53,6 +55,7 @@ RelicLab is designed around flexible, on-demand composition. Depending on your u
 The project is in early development. Planned directions include:
 
 - **Asset schemas (implemented, pre-release)** — strict models, format specification, JSON Schema, and examples; cross-platform acceptance tracked separately
+- **Markdown codec (implemented, pre-release)** - restricted YAML parsing, source maps, bounded input, and canonical serialization; no file writes
 - **CLI tool** — command-line composition and system prompt generation
 - **Markdown sync** — bidirectional linking between Memory modules and local note files
 - **Local management UI** — a lightweight web interface for creating, editing, and organizing modules
@@ -73,7 +76,7 @@ MIT
 
 ### 开发状态
 
-工程基础已实现：Core、Runtime、CLI、Server 四个可独立构建的包、锁定的开发依赖、质量检查和隔离 wheel 安装测试。S01 新增严格资产模型、校验、JSON Schema 导出与公开样例，Python API 位于 `reliclab.schema`，格式与语义校验要求见 [SPEC.md](./SPEC.md)。CLI 目前仍仅提供 `relic --version` 和 `relic doctor`；文件编解码、资产管理、Agent 执行与正式 Web UI 尚未实现。环境准备与验证命令见 [CONTRIBUTING.md](./CONTRIBUTING.md)。
+工程基础已实现：Core、Runtime、CLI、Server 四个可独立构建的包、锁定的开发依赖、质量检查和隔离 wheel 安装测试。S01 新增严格资产模型、校验、JSON Schema 导出与公开样例，Python API 位于 `reliclab.schema`；S02 在 `reliclab.codec` 中提供安全 Markdown 解析、源码位置、可配置限制及确定性序列化。格式、API 与语义校验要求见 [SPEC.md](./SPEC.md)。CLI 目前仍仅提供 `relic --version` 和 `relic doctor`；资产管理、Agent 执行与正式 Web UI 尚未实现。环境准备与验证命令见 [CONTRIBUTING.md](./CONTRIBUTING.md)。
 
 RelicLab 是一个模块化的开源框架，用于构建和管理可复用的 AI Agent 身份。你不必每次都从零重写 system prompt——RelicLab 让你定义、存储并组合三种核心构件（Persona、Skill、Memory），按需混搭，适用于任何 LLM 工作流。
 
@@ -104,7 +107,7 @@ RelicLab 围绕灵活的按需组合设计，三种模块可任意搭配：
 
 ### 路线图
 
-项目处于早期开发阶段。资产 Schema、严格模型、格式规范和样例已实现，属于预发布功能，跨平台验收单独记录。后续方向包括：CLI 工具（命令行组合与 prompt 生成）、Markdown 同步（Memory 与本地笔记双向链接）、本地管理界面（轻量 Web UI）、模块 Registry（社区共享仓库），以及独立可选 Runtime 包（Agent 执行、工具审批、会话及任务编排）。
+项目处于早期开发阶段。资产 Schema、严格模型、格式规范和样例，以及安全 Markdown 编解码（受限 YAML、源码映射、资源限制、规范序列化，不执行文件写入）已实现，属于预发布功能，跨平台验收单独记录。后续方向包括：CLI 工具（命令行组合与 prompt 生成）、Markdown 同步（Memory 与本地笔记双向链接）、本地管理界面（轻量 Web UI）、模块 Registry（社区共享仓库），以及独立可选 Runtime 包（Agent 执行、工具审批、会话及任务编排）。
 
 ### 参与贡献
 

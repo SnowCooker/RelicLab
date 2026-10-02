@@ -1,10 +1,16 @@
 """Isolated filesystem and deterministic clock fixtures."""
 
+import os
 from pathlib import Path
 
 import pytest
 
 from tests.support.clock import FakeClock
+
+os.environ.setdefault(
+    "HYPOTHESIS_STORAGE_DIRECTORY",
+    str(Path(__file__).resolve().parents[1] / ".artifacts/hypothesis"),
+)
 
 
 @pytest.fixture

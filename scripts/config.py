@@ -25,6 +25,7 @@ class Package(TypedDict):
     module: str
     allowed_internal: list[str]
     allowed_external: list[str]
+    distribution_aliases: NotRequired[dict[str, str]]
 
 
 class Configuration(TypedDict):

@@ -1,6 +1,6 @@
 # RelicLab Asset Format 1.0
 
-Status: S01 implementation, pre-release. This specification defines data, not an
+Status: S01/S02 implementation, pre-release. This specification defines data, not an
 agent executor. It does not claim compatibility with external `SKILL.md` formats.
 
 ## Validation API
@@ -26,7 +26,8 @@ Public exports from `reliclab.schema` are `Persona`, `Skill`, `Memory`,
 `ToolRequirement`, `SkillExample`, `Diagnostic`, `RelicError`, `validate_module`,
 `json_schema`, and `schema_text`.
 
-`validate_module(data, source=None)` accepts a decoded Python object. The `kind`
+`validate_module(data, source=None, max_body_bytes=1048576)` accepts a decoded Python object.
+The optional positive integer body limit is host configuration, never asset metadata. The `kind`
 field selects the model; unknown fields are forbidden at every model boundary.
 String-to-number/boolean conversion is forbidden, as are boolean or floating-point
 inputs for integer fields. Numbers must be finite. Optional means a field may be
@@ -58,17 +59,113 @@ identity: A careful editor
 Separate observations from suggestions.
 ```
 
-S01 validates decoded DTOs only. The safe production frontmatter parser, source
-line mapping, YAML restrictions, and deterministic text serializer belong to
-S02. `scripts/schemas.py` reads trusted repository examples for development; it
-is not a production parser and must not be used for untrusted assets.
+S02 provides the production codec below. `scripts/schemas.py` independently reads
+trusted repository examples to cross-check schemas; it is not a production parser
+and must not be used for untrusted assets.
 
-The future codec enforces a 64 KiB frontmatter limit. Models enforce a 1 MiB
-UTF-8 body limit now. No filesystem access occurs during schema validation.
+The codec defaults to 64 KiB frontmatter and 1 MiB body limits. Direct model
+construction retains the 1 MiB body default. No filesystem access occurs during
+validation, parsing, or serialization.
 Storage identity is `ModuleKey(kind, id, version)`; file naming is
 `{kind_directory}/{id}@{version}.md`. Catalog uniqueness is enforced by a future
 Vault, not by a single-document validator. Example directories use singular
 kind names and are not a production Vault layout contract.
+
+## Markdown Codec API
+
+```python
+from reliclab.codec import CodecLimits, parse_module, parse_with_source, serialize_module
+
+text = """---
+schema_version: '1.0'
+id: editor
+kind: persona
+version: 1.0.0
+name: Editor
+identity: A careful editor
+---
+Keep observations separate from suggestions.
+"""
+document = parse_module(text, source="editor.md")
+parsed = parse_with_source(text, source="editor.md")
+assert parsed.positions[("identity",)].line == 7
+canonical = serialize_module(document)
+assert serialize_module(parse_module(canonical)) == canonical
+limits = CodecLimits(max_frontmatter_bytes=131072, max_body_bytes=2097152)
+assert parse_module(canonical.encode("utf-8"), limits=limits) == document
+```
+
+Both parse functions accept `str` or UTF-8 `bytes`, an optional source label
+(default `<memory>`), and keyword-only `limits`. `parse_module` returns a
+`ModuleDocument`; `parse_with_source` returns a frozen `ParsedModule` with the
+document and a read-only `positions` mapping from tuple field paths to frozen
+`SourcePosition(line, column)` values. Indices are zero-based in field paths;
+source coordinates are one-based Unicode code-point positions, not byte offsets.
+The source label is not opened or resolved. `serialize_module(document, limits=...)`
+returns text and revalidates the model, including mutable nested mappings.
+
+### Input and Resource Limits
+
+- Exactly one optional leading UTF-8 BOM is accepted. The opening line must be
+  exactly `---` followed by LF or CRLF. Whitespace and comments on that line fail.
+- The first subsequent exact `---` line closes frontmatter; the closing marker
+  may end at EOF. All following content, including further `---` lines, is body.
+- Header line endings must be LF or CRLF. Bare CR, NEL, and Unicode line/paragraph
+  separators are rejected in raw frontmatter, but may occur in escaped strings.
+  Body content is opaque and preserved exactly by parsing, including newlines.
+- Limits count original UTF-8 bytes: header excludes delimiters and BOM but
+  includes its line endings; body starts immediately after the closing line.
+  Size failures are `PARSE_ERROR`, as are invalid UTF-8 and lone surrogates.
+- `CodecLimits` defaults are 65536 header bytes, 1048576 body bytes, nesting depth
+  32, and 10000 nodes. Limits must be positive integers, excluding booleans.
+  Depth counts root as 1 and includes scalar/key nodes; node count includes
+  containers, keys, and values. Depth has a hard ceiling of 64. Hosts may raise
+  byte/node limits; untrusted module fields cannot change any limits.
+- Numbers must be finite and numeric tokens cannot exceed 1024 characters.
+  This bound is independent of Python's integer conversion configuration.
+- Callers still own bounded file reads and transport limits: this API receives
+  already-allocated text/bytes and is not a streaming file reader or OS sandbox.
+
+### Restricted YAML
+
+The root must be a mapping with string keys. PyYAML supplies syntax parsing and
+source marks; its Python object constructors are never called. An event preflight
+rejects anchors, aliases (including recursive/undefined aliases), every explicit
+tag (including `!!str`), directives, document start/end markers, excess depth,
+and excess nodes before tree composition. Duplicate decoded keys and `<<` merge
+keys are rejected recursively. Extra YAML documents cannot be smuggled into the
+header using a marker with a trailing comment; separators after the actual
+closing delimiter remain ordinary Markdown.
+
+Implicit scalar conversion is deliberately JSON-like: lowercase `true`, `false`,
+`null`, an empty unquoted value, and JSON decimal numbers become their corresponding
+Python values. Other plain scalars remain strings: `yes`, `on`, `~`, dates, `.inf`,
+hex/octal spellings, and sexagesimal numbers have no YAML 1.1 special meaning.
+Quoted/block scalars remain strings. Quote string-valued numbers such as
+`schema_version: '1.0'`. Valid JSON surrogate-pair escapes decode to one Unicode
+character; unpaired surrogate escapes fail. No imports, file/process operations,
+template evaluation, or network calls occur during decoding.
+
+### Canonical Output and Roundtrip
+
+Canonical frontmatter is indented JSON, a YAML-compatible subset. This intentional
+choice preserves scalar types without relying on a dumper's implicit resolvers.
+Top-level keys follow model declaration order; nested mapping keys sort by Unicode
+code point. Defaults are included, array order is preserved, and metadata Unicode
+is escaped. Body is not duplicated in metadata. Output uses LF, no BOM, and one
+required final newline if absent; existing trailing body newlines are preserved.
+CRLF and bare CR in body normalize to LF. Empty body stays empty.
+
+Semantic roundtrip means equality after schema normalization and that documented
+body newline normalization, not byte-for-byte source equality. Canonical output is
+idempotent. YAML comments, quoting, key order, and layout are not preserved. The
+codec never writes or silently rewrites files; a future editor/Vault must compare
+source and proposed output and apply its own conflict/atomic-write contract.
+
+Serialization re-parses its output under the same limits before returning. A
+document accepted in compact form may require higher host limits for expanded
+canonical metadata or an appended body newline. Encoding failures use domain
+errors, not partially returned output. No persistent asset migration is performed.
 
 ## Common Fields
 
@@ -83,7 +180,7 @@ kind names and are not a production Vault layout contract.
 | `tags` | `[]` | At most 32 input strings, each at most 64 characters; first-occurrence deduplication |
 | `author` | `null` | String of at most 120 characters, or null |
 | `extensions` | `{}` | String keys starting with `x-`; finite JSON values only |
-| `body` | `""`, except Skill | At most 1,048,576 UTF-8 bytes; kind-specific rules below |
+| `body` | `""`, except Skill | Default limit 1,048,576 UTF-8 bytes; host-configurable; kind-specific rules below |
 
 Character limits count Unicode code points, not grapheme clusters. Empty tag
 strings are allowed by version 1.0. Reserved identifiers include `con`, `prn`,
@@ -224,16 +321,25 @@ be presented as complete asset acceptance.
 
 `validate_module` raises `RelicError` with code `SCHEMA_INVALID`, an English
 message, tuple field `location`, tuple `details` of `Diagnostic`, and
-`retryable=False`. Diagnostic fields are severity, code, message, source, and
-location. Locations contain field names/array indices, never fabricated lines.
-Cross-field failures may be located at the containing object or document root.
-Only decoded field locations are available before S02.
+`retryable=False`. Diagnostic fields are severity, code, message, source, location,
+optional positive `line`/`column`, and `exact` (default false). Locations contain
+field names/array indices. Schema-only validation leaves coordinates unset.
+
+The codec maps schema failures to actual YAML value starts and body failures to
+the start of the body (including the actual EOF position for an empty body).
+Missing fields fall back to frontmatter start `(2, 1)` with `exact=False`; a field
+path is still provided. Cross-field failures may locate the containing object or
+root rather than one field. YAML syntax errors use parser marks. Encoding/reader
+failures without reliable marks use a documented start-of-input/header fallback
+with `exact=False`, not a claimed exact offending-byte position. `PARSE_ERROR`
+denotes envelope, syntax, subset, or codec resource failures; `SCHEMA_INVALID`
+denotes model validation or canonical JSON encoding failures.
 
 Messages omit raw input values and validator context. The optional source is a
 caller-provided label; do not place secrets in source labels or field names.
 Direct Pydantic constructors raise native `ValidationError`, which can include
 input values; use the public wrapper for user-facing failures. Domain codes also
-reserve `PARSE_ERROR`, `SOURCE_CHANGED`, `NOT_FOUND`, `VERSION_CONFLICT`,
+reserve `SOURCE_CHANGED`, `NOT_FOUND`, `VERSION_CONFLICT`,
 `DEPENDENCY_CYCLE`, `PATH_DENIED`, `CONTEXT_OVERFLOW`, and `IO_ERROR` for later stages.
 
 ## Reproducibility
@@ -242,6 +348,7 @@ reserve `PARSE_ERROR`, `SOURCE_CHANGED`, `NOT_FOUND`, `VERSION_CONFLICT`,
 uv sync --all-packages --all-extras --dev --locked
 uv run --no-sync python -m scripts.schemas --check
 uv run --no-sync python scripts/check.py --stage S01 --offline
+uv run --no-sync python scripts/check.py --stage S02 --offline
 uv run --no-sync python scripts/check.py --all --offline
 uv run --no-sync python scripts/check.py --packaging
 ```
@@ -250,3 +357,7 @@ After deliberate model changes, regenerate with `python -m scripts.schemas` and
 review the schema diff. Contract tests reject schema drift and validate all
 examples before and after model normalization. The examples contain at least
 three assets per kind, all four primary composition modes, and Chinese body text.
+Codec contracts roundtrip all examples, reject invalid schema fixtures, and compare
+four checked-in golden outputs. Deterministic Hypothesis tests exercise recursive
+JSON/Unicode roundtrips and malformed text/bytes; security tests block constructors,
+file/process effects, unsafe YAML features, and resource-limit bypasses.
