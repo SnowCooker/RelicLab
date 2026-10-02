@@ -1,0 +1,62 @@
+[dependency-groups]
+dev = [
+  "reliclab[all]",
+  "build>=1.2.2,<2",
+  "hatchling>=1.27,<2",
+  "mypy>=1.15,<2",
+  "pytest>=8.3,<9",
+  "pytest-cov>=6,<8",
+  "pytest-socket>=0.7,<1",
+  "ruff>=0.11,<1",
+  "types-jsonschema>=4.23,<5",
+  "PyYAML>=6,<7",
+  "types-PyYAML>=6,<7",
+]
+
+[tool.uv]
+required-version = ">=0.11.7,<0.12"
+cache-dir = ".uv-cache"
+
+[tool.uv.workspace]
+members = ["packages/reliclab-core", "packages/reliclab-runtime", "apps/cli", "apps/server"]
+
+[tool.uv.sources]
+reliclab = { workspace = true }
+reliclab-core = { workspace = true }
+reliclab-runtime = { workspace = true }
+reliclab-server = { workspace = true }
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+extend-exclude = ["docs", ".artifacts", ".uv-cache"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+files = ["packages", "apps", "scripts", "tests"]
+exclude = ["docs", ".artifacts"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests", "apps/cli/tests"]
+addopts = "--strict-markers --strict-config --import-mode=importlib -p no:cacheprovider"
+filterwarnings = ["error"]
+markers = [
+  "unit: isolated unit tests",
+  "contract: dependency and interface contracts",
+  "integration: local integration tests",
+  "packaging: isolated distribution installation tests",
+  "security: security invariants",
+  "live: explicitly authorized external service checks",
+]
+
+[tool.coverage.run]
+branch = true
+relative_files = true
+
+[tool.coverage.report]
+show_missing = true
+precision = 2

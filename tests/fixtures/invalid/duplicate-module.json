@@ -1,0 +1,19 @@
+{
+  "document": {
+    "schema_version": "1.0",
+    "id": "sample",
+    "kind": "composition",
+    "version": "1.0.0",
+    "name": "Sample",
+    "modules": {
+      "skills": [
+        "review-code@1",
+        "review-code@2"
+      ]
+    },
+    "render": {
+      "target": "plain"
+    }
+  },
+  "structural_valid": true
+}

@@ -1,0 +1,60 @@
+schema_version = 1
+
+[stages.S00]
+paths = ["packages", "apps/cli", "apps/server", "scripts", "tests"]
+tests = ["tests/unit", "tests/contract", "apps/cli/tests"]
+coverage = ["reliclab_cli", "scripts.check", "scripts.boundaries", "scripts.coverage_gate"]
+groups = ["cli", "quality-harness"]
+
+[stages.S01]
+paths = ["packages", "apps/cli", "apps/server", "scripts", "tests"]
+tests = ["tests/unit", "tests/contract", "apps/cli/tests"]
+coverage = ["reliclab", "reliclab_cli", "scripts.check", "scripts.boundaries", "scripts.coverage_gate"]
+groups = ["core", "cli", "quality-harness"]
+
+[[coverage_groups]]
+name = "core"
+prefixes = ["packages/reliclab-core/src/reliclab/"]
+line_min = 90
+branch_min = 85
+
+# Runtime still contains only metadata; add its gate with its first behavior.
+[[coverage_groups]]
+name = "cli"
+prefixes = ["apps/cli/src/reliclab_cli/"]
+line_min = 80
+branch_min = 75
+
+[[coverage_groups]]
+name = "quality-harness"
+prefixes = ["scripts/check.py", "scripts/boundaries.py", "scripts/coverage_gate.py"]
+line_min = 80
+branch_min = 75
+
+[[packages]]
+path = "packages/reliclab-core"
+distribution = "reliclab-core"
+module = "reliclab"
+allowed_internal = []
+allowed_external = ["pydantic", "semver", "jsonschema"]
+
+[[packages]]
+path = "packages/reliclab-runtime"
+distribution = "reliclab-runtime"
+module = "reliclab_runtime"
+allowed_internal = ["reliclab"]
+allowed_external = []
+
+[[packages]]
+path = "apps/cli"
+distribution = "reliclab"
+module = "reliclab_cli"
+allowed_internal = ["reliclab", "reliclab_runtime", "reliclab_server"]
+allowed_external = []
+
+[[packages]]
+path = "apps/server"
+distribution = "reliclab-server"
+module = "reliclab_server"
+allowed_internal = ["reliclab", "reliclab_runtime"]
+allowed_external = []

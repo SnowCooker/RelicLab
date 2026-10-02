@@ -1,0 +1,11 @@
+{
+  "document": {
+    "schema_version": "2.0",
+    "id": "sample",
+    "kind": "persona",
+    "version": "1.0.0",
+    "name": "Sample",
+    "identity": "Editor"
+  },
+  "structural_valid": false
+}

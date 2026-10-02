@@ -1,0 +1,14 @@
+{
+  "document": {
+    "schema_version": "1.0",
+    "id": "sample",
+    "kind": "composition",
+    "version": "1.0.0",
+    "name": "Sample",
+    "modules": {},
+    "render": {
+      "target": "plain"
+    }
+  },
+  "structural_valid": false
+}

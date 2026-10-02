@@ -1,0 +1,44 @@
+name: Quality
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  foundation:
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.11.7"
+          python-version: ${{ matrix.python }}
+      - name: Install locked development environment
+        run: uv --cache-dir .uv-cache sync --all-packages --all-extras --dev --locked
+      - name: Offline quality gates
+        run: uv run --no-sync python scripts/check.py --all --offline
+      - name: Independent distribution installation
+        run: uv run --no-sync python scripts/check.py --packaging
+      - name: Preserve verification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: quality-${{ matrix.os }}-${{ matrix.python }}
+          include-hidden-files: true
+          path: |
+            .artifacts/check-*.json
+            .artifacts/coverage.json
+            .artifacts/packaging/report.json
+            .artifacts/packaging/*.log
+            .artifacts/packaging/*.whl
+            .artifacts/packaging/*.tar.gz

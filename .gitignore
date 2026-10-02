@@ -18,10 +18,15 @@ venv/
 .ruff_cache/
 .coverage
 htmlcov/
+.artifacts/
+.uv-cache/
 
 # Environment / secrets
 .env
 .env.*
+
+# Claude rules
+CLAUDE.md
 
 # Editor / OS
 .vscode/

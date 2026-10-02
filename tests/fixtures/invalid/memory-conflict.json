@@ -1,0 +1,13 @@
+{
+  "document": {
+    "schema_version": "1.0",
+    "id": "sample",
+    "kind": "memory",
+    "version": "1.0.0",
+    "name": "Sample",
+    "source": "inline",
+    "root": "notes",
+    "body": "Keep this."
+  },
+  "structural_valid": false
+}

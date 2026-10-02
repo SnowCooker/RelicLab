@@ -1,0 +1,22 @@
+[project]
+name = "reliclab-server"
+version = "0.1.0a1"
+description = "Local application server package for RelicLab."
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+license-files = ["LICENSE"]
+dependencies = ["reliclab-core>=0.1.0a1,<0.2"]
+
+[project.optional-dependencies]
+runtime = ["reliclab-runtime>=0.1.0a1,<0.2"]
+
+[build-system]
+requires = ["hatchling>=1.27,<2"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/reliclab_server"]
+
+[tool.hatch.build.targets.sdist]
+include = ["/src", "/pyproject.toml", "/README.md", "/LICENSE"]

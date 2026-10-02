@@ -1,0 +1,27 @@
+[project]
+name = "reliclab"
+version = "0.1.0a1"
+description = "Command-line interface for RelicLab."
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+license-files = ["LICENSE"]
+dependencies = ["reliclab-core>=0.1.0a1,<0.2"]
+
+[project.scripts]
+relic = "reliclab_cli.main:main"
+
+[project.optional-dependencies]
+runtime = ["reliclab-runtime>=0.1.0a1,<0.2"]
+ui = ["reliclab-server>=0.1.0a1,<0.2"]
+all = ["reliclab-runtime>=0.1.0a1,<0.2", "reliclab-server[runtime]>=0.1.0a1,<0.2"]
+
+[build-system]
+requires = ["hatchling>=1.27,<2"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/reliclab_cli"]
+
+[tool.hatch.build.targets.sdist]
+include = ["/src", "/pyproject.toml", "/README.md", "/LICENSE"]

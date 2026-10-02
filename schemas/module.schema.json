@@ -1,0 +1,953 @@
+{
+  "$defs": {
+    "Composition": {
+      "additionalProperties": false,
+      "properties": {
+        "author": {
+          "anyOf": [
+            {
+              "maxLength": 120,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Author"
+        },
+        "body": {
+          "default": "",
+          "title": "Body",
+          "type": "string"
+        },
+        "description": {
+          "default": "",
+          "maxLength": 2000,
+          "title": "Description",
+          "type": "string"
+        },
+        "extensions": {
+          "patternProperties": {
+            "^x-": {
+              "$ref": "#/$defs/JsonValue"
+            }
+          },
+          "title": "Extensions",
+          "type": "object"
+        },
+        "id": {
+          "not": {
+            "enum": [
+              "aux",
+              "clock$",
+              "com1",
+              "com2",
+              "com3",
+              "com4",
+              "com5",
+              "com6",
+              "com7",
+              "com8",
+              "com9",
+              "com\u00b2",
+              "com\u00b3",
+              "com\u00b9",
+              "con",
+              "conin$",
+              "conout$",
+              "lpt1",
+              "lpt2",
+              "lpt3",
+              "lpt4",
+              "lpt5",
+              "lpt6",
+              "lpt7",
+              "lpt8",
+              "lpt9",
+              "lpt\u00b2",
+              "lpt\u00b3",
+              "lpt\u00b9",
+              "nul",
+              "prn"
+            ]
+          },
+          "pattern": "^[a-z][a-z0-9-]{0,63}$(?![\\s\\S])",
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "const": "composition",
+          "title": "Kind",
+          "type": "string"
+        },
+        "modules": {
+          "$ref": "#/$defs/ModuleSelection"
+        },
+        "name": {
+          "maxLength": 120,
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Name",
+          "type": "string"
+        },
+        "render": {
+          "$ref": "#/$defs/RenderOptions"
+        },
+        "schema_version": {
+          "const": "1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "tags": {
+          "default": [],
+          "items": {
+            "maxLength": 64,
+            "type": "string"
+          },
+          "maxLength": 32,
+          "title": "Tags",
+          "type": "array"
+        },
+        "variables": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "title": "Variables",
+          "type": "object"
+        },
+        "version": {
+          "pattern": "^(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)(?:-(?:0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*))*)?(?:\\+[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?$(?![\\s\\S])",
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema_version",
+        "id",
+        "kind",
+        "version",
+        "name",
+        "modules",
+        "render"
+      ],
+      "title": "Composition",
+      "type": "object"
+    },
+    "JsonValue": {},
+    "Memory": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "else": {
+            "properties": {
+              "body": {
+                "const": ""
+              },
+              "path": {
+                "type": "string"
+              },
+              "root": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "root",
+              "path"
+            ]
+          },
+          "if": {
+            "properties": {
+              "source": {
+                "const": "inline"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "body": {
+                "pattern": "\\S"
+              },
+              "path": {
+                "type": "null"
+              },
+              "root": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "body"
+            ]
+          }
+        }
+      ],
+      "properties": {
+        "author": {
+          "anyOf": [
+            {
+              "maxLength": 120,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Author"
+        },
+        "body": {
+          "default": "",
+          "title": "Body",
+          "type": "string"
+        },
+        "depth": {
+          "default": 0,
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Depth",
+          "type": "integer"
+        },
+        "description": {
+          "default": "",
+          "maxLength": 2000,
+          "title": "Description",
+          "type": "string"
+        },
+        "extensions": {
+          "patternProperties": {
+            "^x-": {
+              "$ref": "#/$defs/JsonValue"
+            }
+          },
+          "title": "Extensions",
+          "type": "object"
+        },
+        "id": {
+          "not": {
+            "enum": [
+              "aux",
+              "clock$",
+              "com1",
+              "com2",
+              "com3",
+              "com4",
+              "com5",
+              "com6",
+              "com7",
+              "com8",
+              "com9",
+              "com\u00b2",
+              "com\u00b3",
+              "com\u00b9",
+              "con",
+              "conin$",
+              "conout$",
+              "lpt1",
+              "lpt2",
+              "lpt3",
+              "lpt4",
+              "lpt5",
+              "lpt6",
+              "lpt7",
+              "lpt8",
+              "lpt9",
+              "lpt\u00b2",
+              "lpt\u00b3",
+              "lpt\u00b9",
+              "nul",
+              "prn"
+            ]
+          },
+          "pattern": "^[a-z][a-z0-9-]{0,63}$(?![\\s\\S])",
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "const": "memory",
+          "title": "Kind",
+          "type": "string"
+        },
+        "name": {
+          "maxLength": 120,
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Name",
+          "type": "string"
+        },
+        "path": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Path"
+        },
+        "root": {
+          "anyOf": [
+            {
+              "pattern": "^[a-z][a-z0-9-]{0,63}$(?![\\s\\S])",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Root"
+        },
+        "schema_version": {
+          "const": "1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "scope": {
+          "default": "on-demand",
+          "enum": [
+            "always",
+            "on-demand"
+          ],
+          "title": "Scope",
+          "type": "string"
+        },
+        "source": {
+          "enum": [
+            "inline",
+            "file",
+            "glob"
+          ],
+          "title": "Source",
+          "type": "string"
+        },
+        "tags": {
+          "default": [],
+          "items": {
+            "maxLength": 64,
+            "type": "string"
+          },
+          "maxLength": 32,
+          "title": "Tags",
+          "type": "array"
+        },
+        "version": {
+          "pattern": "^(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)(?:-(?:0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*))*)?(?:\\+[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?$(?![\\s\\S])",
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema_version",
+        "id",
+        "kind",
+        "version",
+        "name",
+        "source"
+      ],
+      "title": "Memory",
+      "type": "object"
+    },
+    "ModuleSelection": {
+      "additionalProperties": false,
+      "anyOf": [
+        {
+          "properties": {
+            "persona": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "persona"
+          ]
+        },
+        {
+          "properties": {
+            "skills": {
+              "minItems": 1
+            }
+          },
+          "required": [
+            "skills"
+          ]
+        },
+        {
+          "properties": {
+            "memory": {
+              "minItems": 1
+            }
+          },
+          "required": [
+            "memory"
+          ]
+        }
+      ],
+      "properties": {
+        "memory": {
+          "default": [],
+          "items": {
+            "pattern": "^[a-z][a-z0-9-]{0,63}(?:@(?:(?:0|[1-9][0-9]*)(?:\\.(?:0|[1-9][0-9]*))?|\\^?(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)(?:-(?:0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*))*)?(?:\\+[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?))?$(?![\\s\\S])",
+            "type": "string"
+          },
+          "title": "Memory",
+          "type": "array"
+        },
+        "persona": {
+          "anyOf": [
+            {
+              "pattern": "^[a-z][a-z0-9-]{0,63}(?:@(?:(?:0|[1-9][0-9]*)(?:\\.(?:0|[1-9][0-9]*))?|\\^?(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)(?:-(?:0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*))*)?(?:\\+[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?))?$(?![\\s\\S])",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Persona"
+        },
+        "skills": {
+          "default": [],
+          "items": {
+            "pattern": "^[a-z][a-z0-9-]{0,63}(?:@(?:(?:0|[1-9][0-9]*)(?:\\.(?:0|[1-9][0-9]*))?|\\^?(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)(?:-(?:0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*))*)?(?:\\+[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?))?$(?![\\s\\S])",
+            "type": "string"
+          },
+          "title": "Skills",
+          "type": "array"
+        }
+      },
+      "title": "ModuleSelection",
+      "type": "object"
+    },
+    "Persona": {
+      "additionalProperties": false,
+      "properties": {
+        "author": {
+          "anyOf": [
+            {
+              "maxLength": 120,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Author"
+        },
+        "body": {
+          "default": "",
+          "title": "Body",
+          "type": "string"
+        },
+        "constraints": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Constraints",
+          "type": "array"
+        },
+        "description": {
+          "default": "",
+          "maxLength": 2000,
+          "title": "Description",
+          "type": "string"
+        },
+        "extends": {
+          "anyOf": [
+            {
+              "pattern": "^[a-z][a-z0-9-]{0,63}(?:@(?:(?:0|[1-9][0-9]*)(?:\\.(?:0|[1-9][0-9]*))?|\\^?(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)(?:-(?:0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*))*)?(?:\\+[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?))?$(?![\\s\\S])",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Extends"
+        },
+        "extensions": {
+          "patternProperties": {
+            "^x-": {
+              "$ref": "#/$defs/JsonValue"
+            }
+          },
+          "title": "Extensions",
+          "type": "object"
+        },
+        "id": {
+          "not": {
+            "enum": [
+              "aux",
+              "clock$",
+              "com1",
+              "com2",
+              "com3",
+              "com4",
+              "com5",
+              "com6",
+              "com7",
+              "com8",
+              "com9",
+              "com\u00b2",
+              "com\u00b3",
+              "com\u00b9",
+              "con",
+              "conin$",
+              "conout$",
+              "lpt1",
+              "lpt2",
+              "lpt3",
+              "lpt4",
+              "lpt5",
+              "lpt6",
+              "lpt7",
+              "lpt8",
+              "lpt9",
+              "lpt\u00b2",
+              "lpt\u00b3",
+              "lpt\u00b9",
+              "nul",
+              "prn"
+            ]
+          },
+          "pattern": "^[a-z][a-z0-9-]{0,63}$(?![\\s\\S])",
+          "title": "Id",
+          "type": "string"
+        },
+        "identity": {
+          "pattern": "\\S",
+          "title": "Identity",
+          "type": "string"
+        },
+        "kind": {
+          "const": "persona",
+          "title": "Kind",
+          "type": "string"
+        },
+        "name": {
+          "maxLength": 120,
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Name",
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "tags": {
+          "default": [],
+          "items": {
+            "maxLength": 64,
+            "type": "string"
+          },
+          "maxLength": 32,
+          "title": "Tags",
+          "type": "array"
+        },
+        "values": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Values",
+          "type": "array"
+        },
+        "version": {
+          "pattern": "^(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)(?:-(?:0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*))*)?(?:\\+[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?$(?![\\s\\S])",
+          "title": "Version",
+          "type": "string"
+        },
+        "voice": {
+          "default": "",
+          "title": "Voice",
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema_version",
+        "id",
+        "kind",
+        "version",
+        "name",
+        "identity"
+      ],
+      "title": "Persona",
+      "type": "object"
+    },
+    "RenderOptions": {
+      "additionalProperties": false,
+      "properties": {
+        "target": {
+          "enum": [
+            "plain",
+            "openai-chat",
+            "anthropic-messages"
+          ],
+          "title": "Target",
+          "type": "string"
+        },
+        "token_budget": {
+          "default": 8000,
+          "maximum": 1000000,
+          "minimum": 1,
+          "title": "Token Budget",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "target"
+      ],
+      "title": "RenderOptions",
+      "type": "object"
+    },
+    "Skill": {
+      "additionalProperties": false,
+      "properties": {
+        "author": {
+          "anyOf": [
+            {
+              "maxLength": 120,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Author"
+        },
+        "body": {
+          "title": "Body",
+          "type": "string"
+        },
+        "description": {
+          "default": "",
+          "maxLength": 2000,
+          "title": "Description",
+          "type": "string"
+        },
+        "examples": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/SkillExample"
+          },
+          "title": "Examples",
+          "type": "array"
+        },
+        "extensions": {
+          "patternProperties": {
+            "^x-": {
+              "$ref": "#/$defs/JsonValue"
+            }
+          },
+          "title": "Extensions",
+          "type": "object"
+        },
+        "id": {
+          "not": {
+            "enum": [
+              "aux",
+              "clock$",
+              "com1",
+              "com2",
+              "com3",
+              "com4",
+              "com5",
+              "com6",
+              "com7",
+              "com8",
+              "com9",
+              "com\u00b2",
+              "com\u00b3",
+              "com\u00b9",
+              "con",
+              "conin$",
+              "conout$",
+              "lpt1",
+              "lpt2",
+              "lpt3",
+              "lpt4",
+              "lpt5",
+              "lpt6",
+              "lpt7",
+              "lpt8",
+              "lpt9",
+              "lpt\u00b2",
+              "lpt\u00b3",
+              "lpt\u00b9",
+              "nul",
+              "prn"
+            ]
+          },
+          "pattern": "^[a-z][a-z0-9-]{0,63}$(?![\\s\\S])",
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "const": "skill",
+          "title": "Kind",
+          "type": "string"
+        },
+        "name": {
+          "maxLength": 120,
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Name",
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "1.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "tags": {
+          "default": [],
+          "items": {
+            "maxLength": 64,
+            "type": "string"
+          },
+          "maxLength": 32,
+          "title": "Tags",
+          "type": "array"
+        },
+        "tools": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/ToolRequirement"
+          },
+          "title": "Tools",
+          "type": "array"
+        },
+        "trigger": {
+          "default": "",
+          "title": "Trigger",
+          "type": "string"
+        },
+        "version": {
+          "pattern": "^(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)(?:-(?:0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*))*)?(?:\\+[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?$(?![\\s\\S])",
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema_version",
+        "id",
+        "kind",
+        "version",
+        "name",
+        "body"
+      ],
+      "title": "Skill",
+      "type": "object"
+    },
+    "SkillExample": {
+      "additionalProperties": false,
+      "properties": {
+        "input": {
+          "title": "Input",
+          "type": "string"
+        },
+        "output": {
+          "title": "Output",
+          "type": "string"
+        }
+      },
+      "required": [
+        "input",
+        "output"
+      ],
+      "title": "SkillExample",
+      "type": "object"
+    },
+    "ToolRequirement": {
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "input_schema": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/ToolSchema"
+            },
+            {
+              "properties": {
+                "type": {
+                  "const": "object"
+                }
+              }
+            }
+          ]
+        },
+        "name": {
+          "pattern": "^[a-z][a-z0-9_]{0,63}$(?![\\s\\S])",
+          "title": "Name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "input_schema",
+        "description"
+      ],
+      "title": "ToolRequirement",
+      "type": "object"
+    },
+    "ToolSchema": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "else": {
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "properties"
+                  ]
+                },
+                {
+                  "required": [
+                    "required"
+                  ]
+                },
+                {
+                  "required": [
+                    "additionalProperties"
+                  ]
+                }
+              ]
+            }
+          },
+          "if": {
+            "properties": {
+              "type": {
+                "const": "object"
+              }
+            }
+          },
+          "then": {
+            "not": {
+              "required": [
+                "items"
+              ]
+            }
+          }
+        },
+        {
+          "else": {
+            "not": {
+              "required": [
+                "items"
+              ]
+            }
+          },
+          "if": {
+            "properties": {
+              "type": {
+                "const": "array"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "items"
+            ]
+          }
+        }
+      ],
+      "properties": {
+        "additionalProperties": {
+          "type": "boolean"
+        },
+        "description": {
+          "type": "string"
+        },
+        "items": {
+          "$ref": "#/$defs/ToolSchema"
+        },
+        "properties": {
+          "additionalProperties": {
+            "$ref": "#/$defs/ToolSchema"
+          },
+          "type": "object"
+        },
+        "required": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "type": {
+          "enum": [
+            "object",
+            "array",
+            "string",
+            "integer",
+            "number",
+            "boolean",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "type": "object"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "discriminator": {
+    "mapping": {
+      "composition": "#/$defs/Composition",
+      "memory": "#/$defs/Memory",
+      "persona": "#/$defs/Persona",
+      "skill": "#/$defs/Skill"
+    },
+    "propertyName": "kind"
+  },
+  "oneOf": [
+    {
+      "$ref": "#/$defs/Persona"
+    },
+    {
+      "$ref": "#/$defs/Skill"
+    },
+    {
+      "$ref": "#/$defs/Memory"
+    },
+    {
+      "$ref": "#/$defs/Composition"
+    }
+  ],
+  "x-reliclab-semantic-checks": [
+    "UTF-8 body byte limit and valid Unicode encoding",
+    "portable path policy",
+    "reserved IDs in references and root aliases",
+    "unique reference IDs per selection slot",
+    "finite JSON numbers",
+    "strict Python integer representation",
+    "name whitespace normalization and tag deduplication"
+  ]
+}

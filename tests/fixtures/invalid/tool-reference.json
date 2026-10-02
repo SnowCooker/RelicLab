@@ -1,0 +1,21 @@
+{
+  "document": {
+    "schema_version": "1.0",
+    "id": "sample",
+    "kind": "skill",
+    "version": "1.0.0",
+    "name": "Sample",
+    "body": "Inspect code.",
+    "tools": [
+      {
+        "name": "read_file",
+        "description": "Read.",
+        "input_schema": {
+          "type": "object",
+          "$ref": "https://example.invalid/schema"
+        }
+      }
+    ]
+  },
+  "structural_valid": false
+}
