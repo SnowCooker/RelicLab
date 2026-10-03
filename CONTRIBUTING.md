@@ -1,11 +1,12 @@
 # Contributing to RelicLab
 
 RelicLab contains the S00 engineering foundation, S01 strict asset schemas,
-S02 safe Markdown codec, S03 local Vault, and S04 version resolution and locks.
+S02 safe Markdown codec, S03 local Vault, S04 version resolution and locks,
+and S05 deterministic unbudgeted composition IR.
 The Python APIs and format are documented in [SPEC.md](SPEC.md),
-[VAULT.md](VAULT.md), and [RESOLVE.md](RESOLVE.md).
+[VAULT.md](VAULT.md), [RESOLVE.md](RESOLVE.md), and [COMPOSE.md](COMPOSE.md).
 Only CLI version reporting and installation diagnostics are implemented in the
-CLI. CLI asset management, composition, agent execution, and the Web UI are future stages.
+CLI. CLI asset management/composition, agent execution, and the Web UI are future stages.
 
 ## Development Environment
 
@@ -26,6 +27,7 @@ uv run --no-sync python scripts/check.py --stage S01 --offline
 uv run --no-sync python scripts/check.py --stage S02 --offline
 uv run --no-sync python scripts/check.py --stage S03 --offline
 uv run --no-sync python scripts/check.py --stage S04 --offline
+uv run --no-sync python scripts/check.py --stage S05 --offline
 uv run --no-sync python -m scripts.schemas --check
 uv run --no-sync python scripts/check.py --all --offline
 uv run --no-sync python scripts/check.py --packaging
@@ -96,6 +98,9 @@ storage lifecycles or add execution behavior to Core.
 - Version resolution has independent 95% statement/branch gates, public selector
   vectors, deterministic permutation tests, inheritance limits, and lock replay
   tests against real file edits. It adds no new third-party dependency.
+- Composition has independent 95% statement/branch gates, full-IR golden fixtures
+  for four modes, repeated-input determinism, body-change properties, host trust
+  validation, scalar-only templates, and explicit resource-limit failures.
 - A passing model-generated summary is not evidence: preserve actual commands,
   exit codes, coverage reports, artifacts, and unresolved limitations.
 
@@ -113,7 +118,9 @@ entries fail the check; checks never download packages. Imports must resolve
 inside the fresh environment, and optional modules must be absent when not
 selected. Core dependency metadata is allowlisted, and each installation exercises
 asset validation, canonical JSON Schema, a production codec roundtrip, and real
-Vault create/read/delete, catalog capture, resolution, and serialized-lock replay. Missing optional-install guidance is
+Vault create/read/delete, catalog capture, resolution, serialized-lock replay,
+and composition with provenance, default trust, and stable digest checks.
+Missing optional-install guidance is
 also checked. The schema contract tests enforce generated file consistency and
 validate public examples and invalid fixtures without reading private documents.
 

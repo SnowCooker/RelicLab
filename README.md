@@ -22,6 +22,10 @@ S03 adds plain-text Vault CRUD, revision conflicts, native write locks, and reco
 backups through `reliclab.vault`; see [VAULT.md](./VAULT.md) for API and safety limits.
 S04 adds immutable catalog snapshots, typed version resolution, Persona inheritance,
 and replayable composition locks; see [RESOLVE.md](./RESOLVE.md).
+S05 adds deterministic composition IR, bounded scalar templates, per-block
+provenance/trust, and tool-declaration merging; see [COMPOSE.md](./COMPOSE.md).
+The IR is unbudgeted; token counting, prompt rendering, and external-note reading
+remain future stages.
 See [SPEC.md](./SPEC.md) for the format, codec API, and semantic validation requirements.
 Only `relic --version` and `relic doctor` are available in the CLI;
 CLI asset management, agent execution, and the Web UI are not implemented.
@@ -62,6 +66,7 @@ The project is in early development. Planned directions include:
 - **Markdown codec (implemented, pre-release)** - restricted YAML parsing, source maps, bounded input, and canonical serialization; no file writes
 - **Local Vault (implemented, pre-release)** - library CRUD, filtering/pagination, revision checks, atomic publication, and recovery backups on a host-managed local filesystem
 - **Version resolution (implemented, pre-release)** - typed SemVer selection, bounded Persona inheritance, immutable source snapshots, and exact-key/hash lock replay
+- **Composition IR (implemented, pre-release)** - deterministic context blocks, scalar variables, exact-source trust, tool merging, and canonical digests; no token-budget evaluation yet
 - **CLI tool** — command-line composition and system prompt generation
 - **Markdown sync** — bidirectional linking between Memory modules and local note files
 - **Local management UI** — a lightweight web interface for creating, editing, and organizing modules
@@ -117,7 +122,9 @@ RelicLab 围绕灵活的按需组合设计，三种模块可任意搭配：
 
 本地 Vault 库也已实现，支持宿主管理的本地目录中的 CRUD、查询、哈希检查和备份恢复；不是对恶意宿主进程的文件系统沙箱，也不保证与不遵守锁的外部编辑器实现绝对原子 CAS。
 
-S04 已实现不可变目录快照、按类型进行 SemVer 版本选择、最多 32 层 Persona 继承，以及固定精确版本和内容哈希的组合锁定与重放。新增版本不会自动改变锁定结果；来源变化必须报错并显式重新解析。详见 [RESOLVE.md](./RESOLVE.md)。组合 IR、prompt 渲染与外部笔记内容读取仍属于后续阶段。
+S04 已实现不可变目录快照、按类型进行 SemVer 版本选择、最多 32 层 Persona 继承，以及固定精确版本和内容哈希的组合锁定与重放。新增版本不会自动改变锁定结果；来源变化必须报错并显式重新解析。详见 [RESOLVE.md](./RESOLVE.md)。
+
+S05 已实现确定性组合 IR：逐块记录来源、版本和哈希，提供有界标量模板、显式信任记录、工具需求合并和 canonical digest。Memory 正文不运行模板，所有内容默认 reference。当前 IR 的预算状态为 `not_evaluated`，不表示已满足模型上下文限制；token 预算、prompt 渲染与外部笔记内容读取仍待后续阶段。详见 [COMPOSE.md](./COMPOSE.md)。
 
 ### 参与贡献
 

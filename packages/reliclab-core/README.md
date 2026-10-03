@@ -20,8 +20,12 @@ and explicit limits with uncooperative editors.
 immutable catalog snapshots, and portable composition locks with strict replay.
 See the repository's `RESOLVE.md` for selection, merge, and hash semantics.
 
-This is not an agent executor. Composition IR and prompt rendering are not
-implemented yet. Core has no Runtime or provider SDK dependency. Its dependencies
+`reliclab.compose` adds deterministic unbudgeted IR, bounded scalar substitution,
+source provenance and host-provided trust, tool merging, and canonical digests.
+See the repository's `COMPOSE.md`. Token-budget evaluation, external-note capture,
+and provider prompt rendering are not implemented yet.
+
+This is not an agent executor. Core has no Runtime or provider SDK dependency. Its dependencies
 are Pydantic v2, semver, jsonschema, PyYAML, and filelock.
 
 Developed in the RelicLab monorepo. This package builds independently with Hatchling and requires Python 3.11 or newer.

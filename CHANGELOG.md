@@ -6,6 +6,38 @@ A recorded handoff does not imply that all acceptance checks have passed.
 
 ## Unreleased
 
+### S05 - Deterministic Composition IR (2026-10-03)
+
+- Add pure `reliclab.compose` APIs for ordered, source-attributed Persona, Skill,
+  and selected inline Memory blocks. Revalidate captured graphs against their
+  pinned locks without filesystem, environment, clock, or provider access.
+- Add bounded, single-pass scalar templates with source/field diagnostics and
+  explicit host overrides. Reject expressions, missing variables, and oversized
+  output; never template Memory or tool declarations.
+- Default content to reference trust. Accept exact host-reviewed Persona/Skill
+  key/hash records; keep Memory reference-only. Merge identical tool declarations
+  in first-seen order with all contributor provenance and intersection trust;
+  reject conflicting schemas or descriptions instead of silently overriding.
+- Add immutable canonical context JSON, detached DTO accessors, complete source
+  manifests, and reproducible SHA-256 digests. Document the API in `COMPOSE.md`
+  and update the bilingual README and independent wheel-installation probes.
+- Compatibility: additive pre-release IR/composer version `1.0`; asset schema
+  and resolver lock remain `1.0`. No migration, dependency addition, or lockfile
+  change. Relative paths, host limits, selection, trust, and variables affect
+  the IR digest; the digest is neither a signature nor a permission grant.
+- Verification: Windows/Python 3.11.15 and 3.12.14 each pass 732 tests, strict
+  mypy, ruff, formatting, four sdist-to-wheel builds, and five isolated installation
+  combinations. Schema drift and the documented quick start pass. Compose
+  statement/branch coverage is 100%/100%, independently gated at 95%/95%.
+  Four full-IR goldens each pass 100 repeated recomputations; source-body change,
+  input mutation, trust, template, tool conflict, and byte-limit tests pass.
+  Remote matrix acceptance is tracked separately by the Quality workflow.
+- Limitations: output is explicitly unbudgeted (`not_evaluated`, `unmeasured`,
+  `unrendered`). Selected external file/glob Memory fails until a captured-note
+  adapter exists. Structural tool equality is conservative, not schema equivalence.
+  No token counter, prompt renderer, external-note reader, asset CLI, runtime,
+  or UI is added. Trust labels do not prevent prompt injection or authorize tools.
+
 ### S04 - Deterministic Resolution and Locks (2026-10-02)
 
 - Add validated immutable catalog snapshots and two-pass Vault capture under one

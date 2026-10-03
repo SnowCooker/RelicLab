@@ -3,6 +3,7 @@
 Status: S01/S02 implementation with S03 storage integration, pre-release. This specification defines data, not an
 agent executor. It does not claim compatibility with external `SKILL.md` formats.
 
+S05 implements unbudgeted composition IR; see [COMPOSE.md](COMPOSE.md).
 S04 implements typed reference selection and Persona inheritance without changing
 asset format `1.0`. See [RESOLVE.md](RESOLVE.md) for exact selector, snapshot,
 merge, lock serialization, and replay contracts.
@@ -193,8 +194,8 @@ device spellings containing punctuation already fail the ASCII slug rule.
 Extensions are data only and grant no tool, import, file, or execution capability.
 
 `schema_version` versions this format; `version` versions the individual asset.
-Package versions are independent. A future composition IR will have its own
-`ir_version`; no IR type is delivered by S01. Unknown format versions, including
+Package versions are independent. S05 composition IR uses its own
+`ir_version="1.0"`; see [COMPOSE.md](COMPOSE.md). Unknown format versions, including
 unrecognized minor versions, are rejected rather than silently downgraded.
 
 ## Kind-Specific Fields
