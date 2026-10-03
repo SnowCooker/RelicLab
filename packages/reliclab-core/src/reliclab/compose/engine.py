@@ -5,9 +5,9 @@ from reliclab.resolve.types import canonical_json
 from reliclab.schema import Diagnostic, Memory, Persona, RelicError, Skill
 from reliclab.vault import CatalogSnapshot, ModuleSnapshot
 
+from .budget import DEFAULT_COUNTER, TokenCounter, evaluate_budget
 from .template import TextBuilder, substitute
 from .types import (
-    BudgetReport,
     ComposedContext,
     ComposedTool,
     ComposeLimits,
@@ -33,8 +33,9 @@ def compose(
     request: ComposeRequest = DEFAULT_REQUEST,
     *,
     limits: ComposeLimits = DEFAULT_LIMITS,
+    counter: TokenCounter = DEFAULT_COUNTER,
 ) -> ComposedContext:
-    """Build an unbudgeted IR from locked bytes and explicit host input."""
+    """Build budget-checked Core IR from locked bytes and explicit host input."""
     try:
         request = ComposeRequest.model_validate(request)
         limits = ComposeLimits.model_validate(limits)
@@ -195,7 +196,7 @@ def compose(
             continue
         if memory.source != "inline":
             message = (
-                "External Memory requires a captured-note adapter; S05 accepts inline Memory only."
+                "External Memory requires a captured-note adapter; only inline Memory is supported."
             )
             raise RelicError(
                 "SCHEMA_INVALID",
@@ -217,14 +218,21 @@ def compose(
         selected_memory_ids=tuple(item.key.id for item in graph.memory if item.key.id in selected),
         trusted_sources=tuple(item for item in graph.lock.modules if item.key in trusted),
         limits=limits,
+        counter_id=request.counter_id,
+    )
+    decision = evaluate_budget(
+        tuple(blocks),
+        tuple(tools.values()),
+        token_budget=request.token_budget or composition.render.token_budget,
+        counter_id=request.counter_id,
+        counter=counter,
     )
     data = ContextData(
-        blocks=tuple(blocks),
+        blocks=decision.blocks,
         tools=tuple(tools.values()),
         manifest=manifest,
-        budget_report=BudgetReport(
-            token_budget=request.token_budget or composition.render.token_budget
-        ),
+        budget_report=decision.report,
+        diagnostics=decision.diagnostics,
     )
     context = ComposedContext(canonical_json(data.model_dump(mode="json")))
     if len(context.to_json().encode("utf-8")) > limits.max_context_bytes:

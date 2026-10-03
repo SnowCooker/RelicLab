@@ -1,10 +1,10 @@
 # Composition IR
 
-Status: S05 implementation, pre-release. `reliclab.compose` turns a locked
-`ResolvedGraph` into deterministic, provider-independent context blocks. This is
-an **unbudgeted intermediate representation**, not a model request or executable
-agent. No token count, prompt renderer, external-note reader, or tool executor is
-implemented here.
+Status: S06 implementation, pre-release. `reliclab.compose` turns a locked
+`ResolvedGraph` into deterministic, provider-independent context blocks with
+**Core content budget accounting**. It is not a model request or executable
+agent. Prompt rendering, external-note capture, and tool execution remain future
+stages. See [BUDGET.md](BUDGET.md) for counting scope and precision limits.
 
 ## Quick Start
 
@@ -39,7 +39,9 @@ graph = resolve(workflow, CatalogSnapshot((source,)))
 context = compose(graph, ComposeRequest(variables={"project": "RelicLab"}))
 assert context.blocks[0].trust == "reference"
 assert context.blocks[0].source_hash == source.content_hash
-assert context.budget_report.status == "not_evaluated"
+assert context.budget_report.status == "within_budget"
+assert context.budget_report.estimated
+assert context.budget_report.retained_tokens <= context.budget_report.token_budget
 assert compose(graph, ComposeRequest(variables={"project": "RelicLab"})).digest == context.digest
 print(context.to_json())
 ```
@@ -51,7 +53,8 @@ For a local Vault, use `resolve(workflow, vault.snapshot())` instead. See
 
 ```python
 compose(graph: ResolvedGraph, request: ComposeRequest = ComposeRequest(),
-        *, limits: ComposeLimits = ComposeLimits()) -> ComposedContext
+        *, limits: ComposeLimits = ComposeLimits(),
+        counter: TokenCounter = Utf8ByteCounter()) -> ComposedContext
 ```
 
 All functions are synchronous. Composition validates the captured bytes and
@@ -68,7 +71,7 @@ prove that current disk contents are unchanged.
 | `selected_memory_ids` | Distinct IDs declared in the graph; input order does not change output order |
 | `trusted_sources` | Distinct `LockedModule(key, content_hash)` records for reviewed Persona/Skill bytes |
 | `token_budget` | Optional positive override, at most 1,000,000; otherwise use Composition's budget |
-| `counter_id` | Currently only `"unmeasured"`; no token counter runs |
+| `counter_id` | Defaults to `"utf8-bytes-v1"`; must match the explicitly injected counter |
 | `renderer_version` | Currently only `"unrendered"`; no provider renderer runs |
 
 Unknown fields, coercive types, non-finite numbers, and non-scalar variables are
@@ -82,6 +85,7 @@ Blocks contain `block_id`, `kind`, `text`, `source_key`, `source_hash`,
 `source_relative_path`, `required`, `trust`, and zero-based `order`.
 The stable ID is `kind:id@version`. Relative paths identify captured assets;
 hashes cover their original bytes, not expanded text.
+`order` retains its pre-budget position; removing optional blocks can leave gaps.
 
 1. Persona ancestors precede the leaf. Leaf identity/voice override their parents.
    Merged values/constraints appear once, attributed to the earliest contributing
@@ -93,6 +97,8 @@ hashes cover their original bytes, not expanded text.
 3. Inline Memory follows declaration order. `always` is always included and
    required. `on-demand` is included only when explicitly selected and is not
    required. An entirely unselected Memory-only composition can have zero blocks.
+   Selected optional Memory can also be omitted, as whole blocks in reverse
+   declaration order, to meet the content budget; omissions are explicit.
 
 Persona and Skill blocks are required. Sections have stable Markdown headings
 inside the IR; these are not a final provider prompt format. Metadata such as
@@ -129,7 +135,7 @@ all contributors are trusted. Tools remain declarations; nothing executes them.
 
 ## Manifest and Digest
 
-IR and composer semantics are versioned `1.0`. The manifest contains the existing
+IR and composer semantics are versioned `1.1`. The manifest contains the existing
 composition lock, all dependency keys/raw hashes/relative paths (even unselected
 Memory and empty ancestors), merged variables, canonical selection/trust order,
 host byte limits, and schema/renderer/counter versions. It contains no external
@@ -163,18 +169,30 @@ final JSON cap. Expansion and multi-field assembly are checked incrementally.
 Limits are explicit positive integers and recorded in the manifest. Oversized
 results fail with `CONTEXT_OVERFLOW`; nothing is silently truncated.
 
-`budget_report.status` is always `not_evaluated`, with the requested token budget
-and `counter_id="unmeasured"`. A successful composition is **not** evidence that
-the model context window fits. S06 will implement actual budget evaluation and
-explicit omissions; S07 will capture external notes; later renderers and Runtime
-must validate complete provider requests separately.
+`budget_report.status` is `within_budget` on success. The report includes
+precision, per-block/tool counts, input/retained/required totals, and omissions.
+The default is explicitly estimated: one unit per UTF-8 byte. Required content
+and all tool declarations must fit or composition raises `CONTEXT_OVERFLOW`.
+The counting profile sums block text and canonical tool declarations, not a full
+provider request. A successful composition is **not** proof that a model context
+window fits. S07 will capture external notes; later renderers and Runtime must
+account for protocol overhead, history, and output reserve separately.
+Byte limits apply before budget trimming and still bound the final JSON; a low
+token budget cannot bypass an oversized source or report limit.
 
 Selected `file`/`glob` Memory fails explicitly with `SCHEMA_INVALID`; unselected
 on-demand external Memory is not read and emits no block. There is no silent
 empty-note success. Asset schema `1.0` and resolver lock `1.0` remain unchanged;
-no migration, new dependency, or lockfile update is required by S05.
+no asset migration, new dependency, or lockfile update is required by S06.
 
-Run `python scripts/check.py --stage S05 --offline` and the packaging gate.
+S06 changes the pre-release IR from 1.0 to 1.1 and enables budgeting by default.
+Old `not_evaluated` reports are not accepted as budget-checked contexts; rebuild
+from the captured graph and explicit inputs. Consumers must handle omissions,
+estimated counts, possible order gaps, new digests, and `CONTEXT_OVERFLOW`.
+`unmeasured` no longer matches the default counter. No arbitrary-JSON IR migration
+or automatic reinterpretation of old budgets is provided.
+
+Run `python scripts/check.py --stage S06 --offline` and the packaging gate.
 Public tests include full-IR goldens for four modes, 100-repeat determinism per
 mode, body-change properties, trust/template/resource failure paths, and real
 Vault snapshot-to-IR integration. The compose group has independent 95%

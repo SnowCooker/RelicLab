@@ -36,6 +36,18 @@ tests = ["tests/unit", "tests/contract", "tests/integration", "apps/cli/tests"]
 coverage = ["reliclab", "reliclab_cli", "scripts.check", "scripts.boundaries", "scripts.coverage_gate"]
 groups = ["core", "codec", "vault", "resolve", "compose", "cli", "quality-harness"]
 
+[stages.S06]
+paths = ["packages", "apps/cli", "apps/server", "scripts", "tests"]
+tests = ["tests/unit", "tests/contract", "tests/integration", "apps/cli/tests"]
+coverage = ["reliclab", "reliclab_cli", "scripts.check", "scripts.boundaries", "scripts.coverage_gate"]
+groups = ["core", "codec", "vault", "resolve", "compose", "budget", "cli", "quality-harness"]
+
+[[coverage_groups]]
+name = "budget"
+prefixes = ["packages/reliclab-core/src/reliclab/compose/budget.py"]
+line_min = 95
+branch_min = 95
+
 [[coverage_groups]]
 name = "compose"
 prefixes = ["packages/reliclab-core/src/reliclab/compose/"]

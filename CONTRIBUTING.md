@@ -2,9 +2,9 @@
 
 RelicLab contains the S00 engineering foundation, S01 strict asset schemas,
 S02 safe Markdown codec, S03 local Vault, S04 version resolution and locks,
-and S05 deterministic unbudgeted composition IR.
+S05 deterministic composition IR, and S06 Core-content budgets with explicit omissions.
 The Python APIs and format are documented in [SPEC.md](SPEC.md),
-[VAULT.md](VAULT.md), [RESOLVE.md](RESOLVE.md), and [COMPOSE.md](COMPOSE.md).
+[VAULT.md](VAULT.md), [RESOLVE.md](RESOLVE.md), [COMPOSE.md](COMPOSE.md), and [BUDGET.md](BUDGET.md).
 Only CLI version reporting and installation diagnostics are implemented in the
 CLI. CLI asset management/composition, agent execution, and the Web UI are future stages.
 
@@ -28,6 +28,7 @@ uv run --no-sync python scripts/check.py --stage S02 --offline
 uv run --no-sync python scripts/check.py --stage S03 --offline
 uv run --no-sync python scripts/check.py --stage S04 --offline
 uv run --no-sync python scripts/check.py --stage S05 --offline
+uv run --no-sync python scripts/check.py --stage S06 --offline
 uv run --no-sync python -m scripts.schemas --check
 uv run --no-sync python scripts/check.py --all --offline
 uv run --no-sync python scripts/check.py --packaging
@@ -101,6 +102,9 @@ storage lifecycles or add execution behavior to Core.
 - Composition has independent 95% statement/branch gates, full-IR golden fixtures
   for four modes, repeated-input determinism, body-change properties, host trust
   validation, scalar-only templates, and explicit resource-limit failures.
+- Budgeting has its own 95% statement/branch gates. Test required-content and
+  tool retention, reverse optional removal, monotonicity, invalid counters,
+  arithmetic report invariants, and precision across the public DTO/JSON boundary.
 - A passing model-generated summary is not evidence: preserve actual commands,
   exit codes, coverage reports, artifacts, and unresolved limitations.
 

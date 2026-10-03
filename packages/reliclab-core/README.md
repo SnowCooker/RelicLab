@@ -20,10 +20,13 @@ and explicit limits with uncooperative editors.
 immutable catalog snapshots, and portable composition locks with strict replay.
 See the repository's `RESOLVE.md` for selection, merge, and hash semantics.
 
-`reliclab.compose` adds deterministic unbudgeted IR, bounded scalar substitution,
+`reliclab.compose` adds deterministic IR, bounded scalar substitution,
 source provenance and host-provided trust, tool merging, and canonical digests.
-See the repository's `COMPOSE.md`. Token-budget evaluation, external-note capture,
-and provider prompt rendering are not implemented yet.
+See the repository's `COMPOSE.md`. S06 adds explicit Core-content budget checks,
+an estimated offline counter, host counter injection, and optional Memory removal
+reports. See `BUDGET.md` for scope and precision. External-note capture and
+provider prompt rendering are not implemented yet; Runtime must independently
+count full provider requests, history, and output reserves.
 
 This is not an agent executor. Core has no Runtime or provider SDK dependency. Its dependencies
 are Pydantic v2, semver, jsonschema, PyYAML, and filelock.

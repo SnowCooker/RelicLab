@@ -6,6 +6,39 @@ A recorded handoff does not imply that all acceptance checks have passed.
 
 ## Unreleased
 
+### S06 - Core Content Budgets and Memory Trimming (2026-10-03)
+
+- Enforce additive Core content budgets during composition. Count each expanded
+  block and complete merged tool requirement once; retain every required block
+  and tool, or fail with `CONTEXT_OVERFLOW`. Remove selected optional Memory in
+  reverse declaration order as whole blocks until the budget fits.
+- Add the injectable, versioned `TokenCounter` protocol and strict `TokenCount`
+  results. The dependency-free UTF-8 byte counter explicitly reports estimates;
+  invalid results, identity changes, and adapter failures fail without fallback
+  or retries, with redacted errors.
+- Add reconciled `BudgetReport` totals, per-item precision, source-attributed
+  omissions, and warning diagnostics. Preserve source manifests, trust labels,
+  original block order, and tool declarations. Document the API in `BUDGET.md`
+  and update composition docs, the bilingual README, and wheel-install probes.
+- Compatibility: pre-release IR/composer version changes from `1.0` to `1.1`.
+  Composition now checks budgets by default and can omit optional Memory or
+  reject required overflow. Recompose old unbudgeted IR from its captured graph
+  and explicit inputs; do not relabel it. Asset schema and resolver lock stay
+  `1.0`, with no asset migration, dependency addition, or lockfile change.
+- Verification: Windows/Python 3.11.15 and 3.12.14 each pass 782 tests, strict
+  mypy, ruff, formatting, four sdist-to-wheel builds, and five isolated install
+  combinations. Budget and compose statement/branch coverage is 100%/100%,
+  independently gated at 95%/95%. Schema drift, both documented API examples,
+  exact-fit/overflow demos, deterministic properties, JSON contracts, and Vault
+  non-mutation checks pass. Remote matrix acceptance is tracked separately by
+  the Quality workflow.
+- Limitations: `core-content-v1` excludes renderer framing, provider envelopes,
+  session history, and output reserves; it is not a complete model-request
+  budget. Byte estimates are not universal tokenizer upper bounds, and exact
+  fragment counts do not guarantee exact rendered-request counts. Host counters
+  are trusted code, not sandboxed. Selected external Memory, renderers, asset
+  CLI, Runtime, and UI remain future work; no paid model calls are introduced.
+
 ### S05 - Deterministic Composition IR (2026-10-03)
 
 - Add pure `reliclab.compose` APIs for ordered, source-attributed Persona, Skill,

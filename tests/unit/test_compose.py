@@ -45,10 +45,11 @@ def test_order_provenance_inheritance_and_trust() -> None:
         assert block.source_hash == source.content_hash
         assert block.source_relative_path == source.relative_path
         assert block.block_id == f"{source.key.kind}:{source.key.id}@{source.key.version}"
-    assert result.ir_version == "1.0"
+    assert result.ir_version == "1.1"
     assert result.diagnostics == ()
-    assert result.budget_report.status == "not_evaluated"
-    assert result.budget_report.counter_id == "unmeasured"
+    assert result.budget_report.status == "within_budget"
+    assert result.budget_report.counter_id == "utf8-bytes-v1"
+    assert result.budget_report.estimated is True
     assert result.budget_report.token_budget == 8000
     assert result.tools[0].trust == "instruction"
 
@@ -194,7 +195,7 @@ def test_invalid_or_mutated_variables_are_revalidated(variables: dict[str, Any])
     [
         {"token_budget": 0},
         {"token_budget": True},
-        {"counter_id": "fake"},
+        {"counter_id": "bad identifier"},
         {"renderer_version": "1.0"},
         {"unknown": True},
         {"variables": {"a\n": "b"}},

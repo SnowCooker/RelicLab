@@ -174,7 +174,7 @@ hosts must protect it and persist their own acceptance decisions.
 
 ## Limits and Verification
 
-S05 now generates unbudgeted IR from this graph; see [COMPOSE.md](COMPOSE.md).
+S05/S06 generate IR with Core-content budgeting from this graph; see [COMPOSE.md](COMPOSE.md).
 The resolver itself does not generate composition IR or prompts, count tokens, resolve
 external note content, save lock files, or add CLI/UI/runtime features. External
 Memory file contents are not part of this lock; later composition and Memory
