@@ -18,9 +18,11 @@ and isolated wheel-installation tests. S01 adds strict asset models, validation,
 JSON Schema export, and public examples through the `reliclab.schema` Python API.
 S02 adds safe Markdown parsing, source coordinates, configurable limits, and
 deterministic serialization through `reliclab.codec`.
+S03 adds plain-text Vault CRUD, revision conflicts, native write locks, and recovery
+backups through `reliclab.vault`; see [VAULT.md](./VAULT.md) for API and safety limits.
 See [SPEC.md](./SPEC.md) for the format, codec API, and semantic validation requirements.
 Only `relic --version` and `relic doctor` are available in the CLI;
-asset management, agent execution, and the Web UI are not implemented.
+CLI asset management, agent execution, and the Web UI are not implemented.
 See [CONTRIBUTING.md](./CONTRIBUTING.md) for setup and verification commands.
 
 RelicLab is a modular, open-source framework for building and managing reusable AI agent identities. Instead of rewriting system prompts from scratch every time, RelicLab lets you define, store, and compose three core building blocks — Personas, Skills, and Memory — and mix them on demand for any LLM workflow.
@@ -56,6 +58,7 @@ The project is in early development. Planned directions include:
 
 - **Asset schemas (implemented, pre-release)** — strict models, format specification, JSON Schema, and examples; cross-platform acceptance tracked separately
 - **Markdown codec (implemented, pre-release)** - restricted YAML parsing, source maps, bounded input, and canonical serialization; no file writes
+- **Local Vault (implemented, pre-release)** - library CRUD, filtering/pagination, revision checks, atomic publication, and recovery backups on a host-managed local filesystem
 - **CLI tool** — command-line composition and system prompt generation
 - **Markdown sync** — bidirectional linking between Memory modules and local note files
 - **Local management UI** — a lightweight web interface for creating, editing, and organizing modules
@@ -76,7 +79,7 @@ MIT
 
 ### 开发状态
 
-工程基础已实现：Core、Runtime、CLI、Server 四个可独立构建的包、锁定的开发依赖、质量检查和隔离 wheel 安装测试。S01 新增严格资产模型、校验、JSON Schema 导出与公开样例，Python API 位于 `reliclab.schema`；S02 在 `reliclab.codec` 中提供安全 Markdown 解析、源码位置、可配置限制及确定性序列化。格式、API 与语义校验要求见 [SPEC.md](./SPEC.md)。CLI 目前仍仅提供 `relic --version` 和 `relic doctor`；资产管理、Agent 执行与正式 Web UI 尚未实现。环境准备与验证命令见 [CONTRIBUTING.md](./CONTRIBUTING.md)。
+工程基础已实现：Core、Runtime、CLI、Server 四个可独立构建的包、锁定的开发依赖、质量检查和隔离 wheel 安装测试。S01 新增严格资产模型、校验、JSON Schema 导出与公开样例，Python API 位于 `reliclab.schema`；S02 在 `reliclab.codec` 中提供安全 Markdown 解析、源码位置、可配置限制及确定性序列化；S03 在 `reliclab.vault` 中提供纯文本资产 CRUD、查询分页、版本冲突保护、跨进程写锁和备份恢复，API 与安全限制见 [VAULT.md](./VAULT.md)。格式与语义校验要求见 [SPEC.md](./SPEC.md)。CLI 目前仍仅提供 `relic --version` 和 `relic doctor`；CLI 资产管理、Agent 执行与正式 Web UI 尚未实现。环境准备与验证命令见 [CONTRIBUTING.md](./CONTRIBUTING.md)。
 
 RelicLab 是一个模块化的开源框架，用于构建和管理可复用的 AI Agent 身份。你不必每次都从零重写 system prompt——RelicLab 让你定义、存储并组合三种核心构件（Persona、Skill、Memory），按需混搭，适用于任何 LLM 工作流。
 
@@ -108,6 +111,8 @@ RelicLab 围绕灵活的按需组合设计，三种模块可任意搭配：
 ### 路线图
 
 项目处于早期开发阶段。资产 Schema、严格模型、格式规范和样例，以及安全 Markdown 编解码（受限 YAML、源码映射、资源限制、规范序列化，不执行文件写入）已实现，属于预发布功能，跨平台验收单独记录。后续方向包括：CLI 工具（命令行组合与 prompt 生成）、Markdown 同步（Memory 与本地笔记双向链接）、本地管理界面（轻量 Web UI）、模块 Registry（社区共享仓库），以及独立可选 Runtime 包（Agent 执行、工具审批、会话及任务编排）。
+
+本地 Vault 库也已实现，支持宿主管理的本地目录中的 CRUD、查询、哈希检查和备份恢复；不是对恶意宿主进程的文件系统沙箱，也不保证与不遵守锁的外部编辑器实现绝对原子 CAS。
 
 ### 参与贡献
 

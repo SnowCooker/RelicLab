@@ -18,6 +18,18 @@ tests = ["tests/unit", "tests/contract", "apps/cli/tests"]
 coverage = ["reliclab", "reliclab_cli", "scripts.check", "scripts.boundaries", "scripts.coverage_gate"]
 groups = ["core", "codec", "cli", "quality-harness"]
 
+[stages.S03]
+paths = ["packages", "apps/cli", "apps/server", "scripts", "tests"]
+tests = ["tests/unit", "tests/contract", "tests/integration", "apps/cli/tests"]
+coverage = ["reliclab", "reliclab_cli", "scripts.check", "scripts.boundaries", "scripts.coverage_gate"]
+groups = ["core", "codec", "vault", "cli", "quality-harness"]
+
+[[coverage_groups]]
+name = "vault"
+prefixes = ["packages/reliclab-core/src/reliclab/vault/"]
+line_min = 95
+branch_min = 95
+
 [[coverage_groups]]
 name = "codec"
 prefixes = ["packages/reliclab-core/src/reliclab/codec/"]
@@ -48,7 +60,7 @@ path = "packages/reliclab-core"
 distribution = "reliclab-core"
 module = "reliclab"
 allowed_internal = []
-allowed_external = ["pydantic", "semver", "jsonschema", "yaml"]
+allowed_external = ["pydantic", "semver", "jsonschema", "yaml", "filelock"]
 distribution_aliases = { yaml = "pyyaml" }
 
 [[packages]]

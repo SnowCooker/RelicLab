@@ -1,9 +1,10 @@
 # Contributing to RelicLab
 
-RelicLab contains the S00 engineering foundation, S01 strict asset schemas, and
-S02 safe Markdown codec. The Python APIs and format are documented in [SPEC.md](SPEC.md).
+RelicLab contains the S00 engineering foundation, S01 strict asset schemas,
+S02 safe Markdown codec, and S03 local Vault. The Python APIs and format are
+documented in [SPEC.md](SPEC.md) and [VAULT.md](VAULT.md).
 Only CLI version reporting and installation diagnostics are implemented in the
-CLI. Asset storage/composition, agent execution, and the Web UI are future stages.
+CLI. CLI asset management, composition, agent execution, and the Web UI are future stages.
 
 ## Development Environment
 
@@ -22,6 +23,7 @@ uv run --no-sync relic doctor
 uv run --no-sync python scripts/check.py --stage S00 --offline
 uv run --no-sync python scripts/check.py --stage S01 --offline
 uv run --no-sync python scripts/check.py --stage S02 --offline
+uv run --no-sync python scripts/check.py --stage S03 --offline
 uv run --no-sync python -m scripts.schemas --check
 uv run --no-sync python scripts/check.py --all --offline
 uv run --no-sync python scripts/check.py --packaging
@@ -50,7 +52,7 @@ depend on cache ownership across local users or CI runners.
 
 | Directory | Distribution | Import | Mandatory project dependencies |
 |---|---|---|---|
-| `packages/reliclab-core` | `reliclab-core` | `reliclab` | None; third-party schema and YAML libraries only |
+| `packages/reliclab-core` | `reliclab-core` | `reliclab` | None; third-party schema, YAML, and filesystem-lock libraries only |
 | `packages/reliclab-runtime` | `reliclab-runtime` | `reliclab_runtime` | Core |
 | `apps/cli` | `reliclab` | `reliclab_cli` | Core |
 | `apps/server` | `reliclab-server` | `reliclab_server` | Core |
@@ -85,6 +87,9 @@ storage lifecycles or add execution behavior to Core.
 - The production codec has separate 95% statement and branch gates. Hypothesis
   property tests use deterministic generation without a persistent example database;
   auxiliary Hypothesis storage lives under ignored `.artifacts/hypothesis/`.
+- Vault storage has independent 95% statement/branch gates and real filesystem,
+  cross-process race, Windows junction/POSIX symlink, and fault-injection tests.
+  Link fixtures point only to test-owned directories; no private user data is read.
 - Public tests, fixtures, and CI configuration must never read ignored `docs/`.
 - A passing model-generated summary is not evidence: preserve actual commands,
   exit codes, coverage reports, artifacts, and unresolved limitations.
@@ -102,7 +107,8 @@ Workspace wheels are then installed with `--no-index --find-links`. Missing cach
 entries fail the check; checks never download packages. Imports must resolve
 inside the fresh environment, and optional modules must be absent when not
 selected. Core dependency metadata is allowlisted, and each installation exercises
-asset validation, canonical JSON Schema, and a production codec roundtrip. Missing optional-install guidance is
+asset validation, canonical JSON Schema, a production codec roundtrip, and real
+Vault create/read/delete. Missing optional-install guidance is
 also checked. The schema contract tests enforce generated file consistency and
 validate public examples and invalid fixtures without reading private documents.
 
@@ -159,6 +165,11 @@ Pydantic v2 for asset models, semver for stored versions, and jsonschema for
 offline tool-schema validation. S02 promotes PyYAML (MIT) to a Core dependency for
 syntax/marks only: event preflight and manual bounded node decoding never call
 YAML object constructors. Typing stubs and Hypothesis remain development-only.
+S03 adds filelock >=3.32.7 (MIT) for native cross-process locking with preserved
+lock-file identity and disabled soft fallback. Its measured installed non-bytecode
+files total 355787 bytes on Windows/Python 3.12; platform/version sizes can vary.
+Using a tested lock library avoids maintaining separate Win32/Unix lock engines.
+There are no new provider or database dependencies; offline use needs no network.
 
 Pydantic and jsonschema use MIT licenses; semver uses BSD-3-Clause. Their locked
 transitive dependencies use MIT or PSF-2.0 licenses. The installed runtime

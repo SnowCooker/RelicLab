@@ -1,6 +1,6 @@
 # RelicLab Asset Format 1.0
 
-Status: S01/S02 implementation, pre-release. This specification defines data, not an
+Status: S01/S02 implementation with S03 storage integration, pre-release. This specification defines data, not an
 agent executor. It does not claim compatibility with external `SKILL.md` formats.
 
 ## Validation API
@@ -67,8 +67,8 @@ The codec defaults to 64 KiB frontmatter and 1 MiB body limits. Direct model
 construction retains the 1 MiB body default. No filesystem access occurs during
 validation, parsing, or serialization.
 Storage identity is `ModuleKey(kind, id, version)`; file naming is
-`{kind_directory}/{id}@{version}.md`. Catalog uniqueness is enforced by a future
-Vault, not by a single-document validator. Example directories use singular
+`{kind_directory}/{id}@{version}.md`. Catalog uniqueness is enforced by the S03
+[Vault](VAULT.md), not by a single-document validator. Example directories use singular
 kind names and are not a production Vault layout contract.
 
 ## Markdown Codec API

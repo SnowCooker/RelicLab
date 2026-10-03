@@ -11,8 +11,13 @@ source coordinates, host-controlled resource limits, and canonical serialization
 It does not write files or preserve YAML comments. See `SPEC.md` for exact
 newline, scalar, and roundtrip semantics.
 
-This is not an agent executor. Vault operations, reference resolution, and prompt
-rendering are not implemented yet. Core has no Runtime or provider SDK dependency.
-Its dependencies are Pydantic v2, semver, jsonschema, and PyYAML.
+`reliclab.vault` adds database-free CRUD, fresh catalog queries, SHA-256 revision
+checks, native cross-process locks, atomic publication, and original-byte backup
+recovery. See the repository's `VAULT.md` for its host-managed filesystem boundary
+and explicit limits with uncooperative editors.
+
+This is not an agent executor. Reference resolution and prompt rendering are not
+implemented yet. Core has no Runtime or provider SDK dependency. Its dependencies
+are Pydantic v2, semver, jsonschema, PyYAML, and filelock.
 
 Developed in the RelicLab monorepo. This package builds independently with Hatchling and requires Python 3.11 or newer.

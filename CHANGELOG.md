@@ -6,6 +6,38 @@ A recorded handoff does not imply that all acceptance checks have passed.
 
 ## Unreleased
 
+### S03 - Atomic Local Vault Storage (2026-10-02)
+
+- Add synchronous `reliclab.vault` CRUD, stable filtered pagination, immutable
+  byte snapshots, exact SHA-256 revisions, and an injectable `FileOps` port.
+  Fresh scans detect external edits, malformed assets, duplicate keys, and
+  portable-path collisions; configurable limits bound reads and catalog size.
+- Serialize cooperating clients with native cross-process locks. Publish creates
+  without replacement and updates atomically from fsynced same-directory files;
+  require expected hashes for updates/deletes and reject referenced deletions.
+- Preserve original bytes in recovery backups and add validated restoration.
+  Distinguish postcommit cleanup, sync, and notification failures with explicit
+  non-retryable `PostCommitError` receipts instead of repeating committed writes.
+- Reject traversal, device/ADS paths, protected paths, invalid path encodings,
+  symlinks, Windows junctions, and external hard links. Document the trusted-host
+  boundary and recovery procedures in `VAULT.md`; this is not an OS sandbox.
+- Compatibility: adds filelock >=3.32.7,<4 as a Core runtime dependency. Existing
+  format `1.0` and codec/schema APIs remain unchanged; no database or automatic
+  asset migration. Existing portable flat-directory filenames remain readable;
+  creation uses `{id}@{version}.md`. Unchanged documents retain their raw bytes.
+- Verification: Windows/Python 3.11.15 and 3.12.14 each pass 546 tests, strict mypy,
+  ruff, formatting, and four sdist-to-wheel builds with five isolated installation
+  combinations. Schema drift passes. Vault statement/branch coverage is
+  99.51%/98.53%, with independent 95% gates. Tests cover cross-process competition,
+  external edits, filesystem faults, path races, and original-byte restoration.
+  Remote matrix acceptance is tracked separately by the Quality workflow.
+- Limitations: no atomic CAS against editors bypassing the lock, no guarantee
+  against malicious concurrent ancestor swaps, and no Windows directory-fsync
+  durability guarantee. Backups preserve observed bytes, not unseen racing edits;
+  recovery can require host cleanup of abandoned temporary hard links. Permissions
+  and ACLs are not preserved across replacement. Deletion conservatively matches
+  reference IDs until S04; no version resolver, asset CLI, runtime, or UI is added.
+
 ### S02 - Safe Markdown Codec (2026-10-02)
 
 - Add pure `parse_module`, `parse_with_source`, and `serialize_module` APIs with

@@ -118,7 +118,7 @@ def main() -> int:
                     metadata = BytesParser().parsebytes(archive.read(metadata_path))
                     requirements = metadata.get_all("Requires-Dist", [])
                     if metadata["Name"] == "reliclab-core":
-                        allowed = {"pydantic", "semver", "jsonschema", "pyyaml"}
+                        allowed = {"pydantic", "semver", "jsonschema", "pyyaml", "filelock"}
                         actual = {re.split(r"[<>=!;~ ]", item)[0].lower() for item in requirements}
                         if actual != allowed:
                             raise RuntimeError("Core wheel dependencies violate the allowlist")
@@ -181,6 +181,13 @@ def main() -> int:
                     "Draft202012Validator(json_schema()).validate(asset.model_dump(mode='json')); "
                     "from reliclab.codec import parse_module, serialize_module; "
                     "assert parse_module(serialize_module(asset)) == asset; "
+                    "from tempfile import TemporaryDirectory; "
+                    "from reliclab.vault import Vault; "
+                    "temporary = TemporaryDirectory(); vault = Vault(temporary.name); "
+                    "snapshot = vault.create(asset); "
+                    "assert vault.get(snapshot.key).content_hash == snapshot.content_hash; "
+                    "vault.delete(snapshot.key, snapshot.content_hash); "
+                    "assert vault.list() == (); temporary.cleanup(); "
                     "print({module.__name__: module.__version__ for module in loaded})"
                 )
                 run([str(executable), "-I", "-c", probe], root)
