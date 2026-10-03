@@ -16,7 +16,11 @@ checks, native cross-process locks, atomic publication, and original-byte backup
 recovery. See the repository's `VAULT.md` for its host-managed filesystem boundary
 and explicit limits with uncooperative editors.
 
-This is not an agent executor. Reference resolution and prompt rendering are not
+`reliclab.resolve` adds typed SemVer selection, bounded Persona inheritance,
+immutable catalog snapshots, and portable composition locks with strict replay.
+See the repository's `RESOLVE.md` for selection, merge, and hash semantics.
+
+This is not an agent executor. Composition IR and prompt rendering are not
 implemented yet. Core has no Runtime or provider SDK dependency. Its dependencies
 are Pydantic v2, semver, jsonschema, PyYAML, and filelock.
 

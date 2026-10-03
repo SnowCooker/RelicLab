@@ -6,6 +6,37 @@ A recorded handoff does not imply that all acceptance checks have passed.
 
 ## Unreleased
 
+### S04 - Deterministic Resolution and Locks (2026-10-02)
+
+- Add validated immutable catalog snapshots and two-pass Vault capture under one
+  cooperating-client lock, detecting observed catalog changes before resolution.
+- Add pure typed reference resolution through `reliclab.resolve`, using the
+  existing semver library for precedence. Support exact, major/minor, and caret
+  selectors; reject ambiguous equal-precedence builds and incompatible fallbacks.
+- Resolve up to 32 Persona inheritance levels with full diagnostic chains,
+  parent-first values/constraints, explicit body sections, and preserved source
+  snapshots. Bound merged body bytes and total selected modules.
+- Add portable versioned composition locks with exact dependency keys/raw hashes,
+  deterministic JSON/digests, bounded strict parsing, and ordered-closure checks.
+  Locked replay never upgrades or silently retries unlocked; explicit fresh
+  resolution produces a new lock. Document the complete API in `RESOLVE.md`.
+- Compatibility: additive APIs; asset format remains `1.0`, with no migration,
+  dependency addition, or lockfile change. The new composition-lock format and
+  resolver semantics are versioned `1.0`. Vault deletion remains conservative.
+- Verification: Windows/Python 3.11.15 and 3.12.14 each pass 659 tests, strict mypy,
+  ruff, formatting, and four sdist-to-wheel builds with five isolated installation
+  combinations. Schema drift and the documented quick start pass. Resolver
+  statement/branch coverage is 100%/100%, independently gated at 95%/95%.
+  Public selector fixtures, permutation properties, transitive-lock checks, and
+  real file edit/delete/rename tests cover normal, boundary, and failure paths.
+  Remote matrix acceptance is tracked separately by the Quality workflow.
+- Limitations: two-pass capture is not a transactional snapshot against writers
+  bypassing the lock. Locks are not signatures or permission grants; hosts own
+  atomic lock persistence and explicit update decisions. Composition hashes cover
+  validated DTOs rather than YAML comments; dependency hashes cover raw bytes.
+  No composition IR, prompt rendering, external-note reading, asset CLI, runtime,
+  or UI is added in this stage.
+
 ### S03 - Atomic Local Vault Storage (2026-10-02)
 
 - Add synchronous `reliclab.vault` CRUD, stable filtered pagination, immutable

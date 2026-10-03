@@ -24,6 +24,18 @@ tests = ["tests/unit", "tests/contract", "tests/integration", "apps/cli/tests"]
 coverage = ["reliclab", "reliclab_cli", "scripts.check", "scripts.boundaries", "scripts.coverage_gate"]
 groups = ["core", "codec", "vault", "cli", "quality-harness"]
 
+[stages.S04]
+paths = ["packages", "apps/cli", "apps/server", "scripts", "tests"]
+tests = ["tests/unit", "tests/contract", "tests/integration", "apps/cli/tests"]
+coverage = ["reliclab", "reliclab_cli", "scripts.check", "scripts.boundaries", "scripts.coverage_gate"]
+groups = ["core", "codec", "vault", "resolve", "cli", "quality-harness"]
+
+[[coverage_groups]]
+name = "resolve"
+prefixes = ["packages/reliclab-core/src/reliclab/resolve/"]
+line_min = 95
+branch_min = 95
+
 [[coverage_groups]]
 name = "vault"
 prefixes = ["packages/reliclab-core/src/reliclab/vault/"]

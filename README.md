@@ -20,6 +20,8 @@ S02 adds safe Markdown parsing, source coordinates, configurable limits, and
 deterministic serialization through `reliclab.codec`.
 S03 adds plain-text Vault CRUD, revision conflicts, native write locks, and recovery
 backups through `reliclab.vault`; see [VAULT.md](./VAULT.md) for API and safety limits.
+S04 adds immutable catalog snapshots, typed version resolution, Persona inheritance,
+and replayable composition locks; see [RESOLVE.md](./RESOLVE.md).
 See [SPEC.md](./SPEC.md) for the format, codec API, and semantic validation requirements.
 Only `relic --version` and `relic doctor` are available in the CLI;
 CLI asset management, agent execution, and the Web UI are not implemented.
@@ -59,6 +61,7 @@ The project is in early development. Planned directions include:
 - **Asset schemas (implemented, pre-release)** — strict models, format specification, JSON Schema, and examples; cross-platform acceptance tracked separately
 - **Markdown codec (implemented, pre-release)** - restricted YAML parsing, source maps, bounded input, and canonical serialization; no file writes
 - **Local Vault (implemented, pre-release)** - library CRUD, filtering/pagination, revision checks, atomic publication, and recovery backups on a host-managed local filesystem
+- **Version resolution (implemented, pre-release)** - typed SemVer selection, bounded Persona inheritance, immutable source snapshots, and exact-key/hash lock replay
 - **CLI tool** — command-line composition and system prompt generation
 - **Markdown sync** — bidirectional linking between Memory modules and local note files
 - **Local management UI** — a lightweight web interface for creating, editing, and organizing modules
@@ -113,6 +116,8 @@ RelicLab 围绕灵活的按需组合设计，三种模块可任意搭配：
 项目处于早期开发阶段。资产 Schema、严格模型、格式规范和样例，以及安全 Markdown 编解码（受限 YAML、源码映射、资源限制、规范序列化，不执行文件写入）已实现，属于预发布功能，跨平台验收单独记录。后续方向包括：CLI 工具（命令行组合与 prompt 生成）、Markdown 同步（Memory 与本地笔记双向链接）、本地管理界面（轻量 Web UI）、模块 Registry（社区共享仓库），以及独立可选 Runtime 包（Agent 执行、工具审批、会话及任务编排）。
 
 本地 Vault 库也已实现，支持宿主管理的本地目录中的 CRUD、查询、哈希检查和备份恢复；不是对恶意宿主进程的文件系统沙箱，也不保证与不遵守锁的外部编辑器实现绝对原子 CAS。
+
+S04 已实现不可变目录快照、按类型进行 SemVer 版本选择、最多 32 层 Persona 继承，以及固定精确版本和内容哈希的组合锁定与重放。新增版本不会自动改变锁定结果；来源变化必须报错并显式重新解析。详见 [RESOLVE.md](./RESOLVE.md)。组合 IR、prompt 渲染与外部笔记内容读取仍属于后续阶段。
 
 ### 参与贡献
 

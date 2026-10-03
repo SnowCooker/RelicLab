@@ -51,6 +51,10 @@ replace the expected hash merely to force a stale document through.
 | `delete(key, expected_hash)` | `None`; refuses referenced assets and preserves a backup |
 | `restore(backup_path, expected_hash=None)` | Snapshot; restores exact validated backup bytes |
 
+S04 adds `snapshot() -> CatalogSnapshot`, with two validated scans under one
+cooperating-client lock and immutable captured bytes. See [RESOLVE.md](RESOLVE.md)
+for its consistency limits and the resolution/lock API.
+
 Public exports also include `FileOps`, `LocalFileOps`, `CommitReceipt`, and
 `PostCommitError`. Configuration errors use `ValueError`; invalid key/query DTOs
 use Pydantic validation errors. Asset, filesystem, and conflict failures use
@@ -180,8 +184,8 @@ a partial `.tmp`, never a partially published `.md`.
   preserve the version observed by the Vault, not an unobserved last-moment edit.
   Preserve editor conflict copies and compare all versions before recovery.
 - Deletion rejects any same-kind reference to the module ID, including selectors
-  that might resolve to another version. This conservative rule does not implement
-  the S04 resolver and has no force-delete escape hatch.
+  that might resolve to another version. This conservative rule remains independent
+  of the S04 resolver and has no force-delete escape hatch.
 
 ## FileOps and Verification
 

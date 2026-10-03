@@ -17,6 +17,7 @@ from reliclab.schema import (
     validate_module,
 )
 
+from .catalog import CatalogSnapshot
 from .files import FileOps, LocalFileOps
 from .types import (
     DIRECTORIES,
@@ -118,6 +119,15 @@ class Vault:
             if snapshot is None:
                 raise RelicError("NOT_FOUND", "Asset key was not found in Vault.")
             return snapshot
+
+    def snapshot(self) -> CatalogSnapshot:
+        """Capture bytes under one client lock and detect changes in a second scan."""
+        with self._errors(), self.files.locked():
+            first = self._scan()
+            second = self._scan()
+            if first != second:
+                raise RelicError("SOURCE_CHANGED", "Catalog changed during capture; reload.")
+            return CatalogSnapshot(tuple(first.values()))
 
     def list(self, query: ModuleQuery = DEFAULT_QUERY) -> tuple[ModuleSummary, ...]:
         query = ModuleQuery.model_validate(query)

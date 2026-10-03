@@ -3,6 +3,10 @@
 Status: S01/S02 implementation with S03 storage integration, pre-release. This specification defines data, not an
 agent executor. It does not claim compatibility with external `SKILL.md` formats.
 
+S04 implements typed reference selection and Persona inheritance without changing
+asset format `1.0`. See [RESOLVE.md](RESOLVE.md) for exact selector, snapshot,
+merge, lock serialization, and replay contracts.
+
 ## Validation API
 
 ```python
